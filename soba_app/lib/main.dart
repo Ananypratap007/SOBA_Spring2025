@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:soba_app/login.dart';
+//import 'package:soba_app/login.dart';
+import 'package:soba_app/checkin.dart'; //import checkin page
 
 void main() {
   runApp(const MainApp());
@@ -13,7 +14,7 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.orange,
-        body: LoginPage(),
+        body: CheckInScreen(),
       ),
     );
   }
