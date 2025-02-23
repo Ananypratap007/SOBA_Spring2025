@@ -12,7 +12,8 @@ class ProfileInfoPage extends StatelessWidget {
   final VoidCallback onEditPersonal;
   final VoidCallback onEditAdditional;
 
-  const ProfileInfoPage({super.key, 
+  const ProfileInfoPage({
+    super.key,
     required this.name,
     required this.email,
     required this.phone,
@@ -71,7 +72,6 @@ class ProfileInfoPage extends StatelessWidget {
 
           // Vehicle Information Section
           InfoCard(
-            
               icon: Icons.directions_car,
               title: "Vehicle Information",
               details: additionalDetails,
@@ -92,7 +92,8 @@ class ProfileCard extends StatelessWidget {
   final String phone;
   final VoidCallback onEdit;
 
-  const ProfileCard({super.key, 
+  const ProfileCard({
+    super.key,
     required this.name,
     required this.email,
     required this.phone,
@@ -176,7 +177,8 @@ class InfoCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onMorePressed; // New parameter
 
-  const InfoCard({super.key, 
+  const InfoCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.details,
