@@ -56,17 +56,13 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       buildSectionHeader(Icons.person, "Personal Information"),
                       const Divider(thickness: 1, color: Colors.grey),
-                      ...personalDetails.entries
-                          .map((entry) =>
-                              buildLabeledText(entry.key, entry.value))
-                          ,
+                      ...personalDetails.entries.map(
+                          (entry) => buildLabeledText(entry.key, entry.value)),
                       const SizedBox(height: 15),
                       buildSectionHeader(Icons.fingerprint, "Biological Info"),
                       const Divider(thickness: 1, color: Colors.grey),
-                      ...details.entries
-                          .map((entry) =>
-                              buildLabeledText(entry.key, entry.value))
-                          ,
+                      ...details.entries.map(
+                          (entry) => buildLabeledText(entry.key, entry.value)),
                     ],
                   ),
 
