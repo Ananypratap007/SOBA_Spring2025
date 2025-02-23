@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:async/async.dart' show RestartableTimer;
+import 'package:soba_app/navigation.dart' show BottomBar;
 import 'package:soba_app/main.dart' hide MainApp;
 
 class ButtonPage extends StatefulWidget {
@@ -20,15 +21,7 @@ class _ButtonPageState extends State<ButtonPage> {
     RestartableTimer checkinTimer = RestartableTimer(const Duration(minutes: 15), _timeout);
 
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: scheme.primary,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+      bottomNavigationBar: BottomBar(scheme: scheme, selected: 0),
       body: Column(
         children: [
           Container(
@@ -79,7 +72,7 @@ class _ButtonPageState extends State<ButtonPage> {
           ),
           SizedBox(height: 20),
           CircleAvatar(
-            radius: 100,
+            radius: 80,
             backgroundColor: Colors.red.shade300,
             child: Icon(Icons.error_outline, color: Colors.white, size: 120),
           ),

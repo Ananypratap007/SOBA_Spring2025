@@ -15,17 +15,7 @@ class _MapPageState extends State<MapPage> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: scheme.primary,
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: 1,
-      ),
+      bottomNavigationBar: BottomBar(scheme: scheme, selected: 1),
       body: SlidingUpPanel(
         minHeight: 50,
         maxHeight: 450,
@@ -55,6 +45,32 @@ class _MapPageState extends State<MapPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class BottomBar extends StatelessWidget {
+  const BottomBar({
+    super.key,
+    required this.scheme,
+    required this.selected,
+  });
+
+  final ColorScheme scheme;
+  final int selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      backgroundColor: Colors.white,
+      selectedItemColor: scheme.primary,
+      unselectedItemColor: Colors.grey,
+      items: [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+      ],
+      currentIndex: selected,
     );
   }
 }
