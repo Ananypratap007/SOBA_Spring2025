@@ -1,55 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:async/async.dart' show RestartableTimer;
+import 'package:soba_app/main.dart' hide MainApp;
 
-void main() {
-  runApp(MyApp());
+class ButtonPage extends StatefulWidget {
+  const ButtonPage({super.key});
+  
+  @override
+  State<ButtonPage> createState() => _ButtonPageState();
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: PanicButtonPage(),
-    );
+class _ButtonPageState extends State<ButtonPage> {
+  void _timeout() {
+    // TODO: Send push
   }
-}
 
-class PanicButtonPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    RestartableTimer checkinTimer = RestartableTimer(const Duration(minutes: 15), _timeout);
+
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.orange,
+        selectedItemColor: scheme.primary,
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.only(top: 50, bottom: 20),
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.only(top: 2.5*dfInsets, bottom: dfInsets),
             decoration: BoxDecoration(
-              color: Colors.orange.shade300,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+              gradient: gradientOrange,
             ),
             child: Column(
               children: [
-                Text(
-                  'Organization Name',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                Container(
+                  padding: EdgeInsets.all(dfInsets),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(50.0)
+                    )
+                  ),
+                  child: Text(
+                    'Organization Name',
+                    style: TextStyle(
+                      color: scheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
                   'Hi, Name',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: scheme.onPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -64,21 +75,21 @@ class PanicButtonPage extends StatelessWidget {
           SizedBox(height: 20),
           Text(
             'Are you in an emergency?',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: scheme.primary),
           ),
           SizedBox(height: 20),
           CircleAvatar(
-            radius: 50,
+            radius: 100,
             backgroundColor: Colors.red.shade300,
-            child: Icon(Icons.error_outline, color: Colors.white, size: 50),
+            child: Icon(Icons.error_outline, color: Colors.white, size: 120),
           ),
-          SizedBox(height: 20),
+          Expanded(child: SizedBox.shrink()),
           Container(
-            margin: EdgeInsets.all(20),
-            padding: EdgeInsets.all(20),
+            margin: EdgeInsets.all(dfInsets),
+            padding: EdgeInsets.all(dfInsets),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(dfRadius),
               boxShadow: [
                 BoxShadow(color: Colors.black12, blurRadius: 10),
               ],
@@ -88,26 +99,47 @@ class PanicButtonPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.access_alarm, color: Colors.orange, size: 40),
+                    Column(
+                      children: [
+                        Icon(Icons.access_alarm, color: scheme.primary, size: 100),
+                      ],
+                    ),
                     SizedBox(width: 10),
-                    Text(
-                      'Next check-in:',
-                      style: TextStyle(color: Colors.orange, fontSize: 18),
+                    Column(
+                      children: [
+                        Text(
+                          'Next check-in:',
+                          style: TextStyle(color: scheme.primary, fontSize: 32),
+                        ),
+                        Container(
+                          width: 221, // TODO: Adapt to fill space
+                          padding: EdgeInsets.all(dfInsets),
+                          decoration: BoxDecoration(
+                            color: scheme.primary,
+                            borderRadius: BorderRadius.circular(dfRadius),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black12, blurRadius: 10),
+                            ]
+                          ),
+                          child: Text(
+                            '07:12', // TODO: Read from checkinTimer
+                            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: scheme.onPrimary),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  '07:12',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.orange),
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: null,
                   style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(dfInsets),
+                    shadowColor: Colors.black12,
                     backgroundColor: Colors.grey,
                   ),
-                  child: Text('Check In', style: TextStyle(color: Colors.white)),
+                  child: Text('Check In', style: TextStyle(fontSize: 40, color: Colors.white)),
                 ),
               ],
             ),
