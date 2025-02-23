@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'selfieConfirmation.dart'; // Import the file where SelfieReviewScreen is defined
+import 'vehicleReview.dart';
 
-
-class CheckInScreen extends StatelessWidget {
-  const CheckInScreen({super.key});
+class VehiclePhotoScreen extends StatelessWidget {
+  const VehiclePhotoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +23,9 @@ class CheckInScreen extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Checking in",
+                "Vehicle Photo",
                 style: TextStyle(
-                  fontSize: 30, 
+                  fontSize: 20, 
                   fontWeight: FontWeight.bold, 
                   color: Colors.white,
                 ),
@@ -38,15 +37,14 @@ class CheckInScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Replace the image with a large icon
                 const Icon(
-                  Icons.camera_front,
+                  Icons.directions_car,
                   size: 240,
                   color: Colors.grey,
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Take a selfie for identification",
+                  "Take a photo of parked car",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 30),
@@ -54,9 +52,9 @@ class CheckInScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SelfieReviewScreen()),
+                      MaterialPageRoute(builder: (context) => const VehicleReviewScreen()),
                     );
-                  }, // Placeholder action
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(15),
                     decoration: const BoxDecoration(
@@ -73,15 +71,6 @@ class CheckInScreen extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Map"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );
