@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'models/vehicle.dart'; // Import the Vehicle model
 
 class VehiclePage extends StatefulWidget {
+  const VehiclePage({super.key});
+
   @override
   _VehiclePageState createState() => _VehiclePageState();
 }

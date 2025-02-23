@@ -12,7 +12,7 @@ class ProfileInfoPage extends StatelessWidget {
   final VoidCallback onEditPersonal;
   final VoidCallback onEditAdditional;
 
-  const ProfileInfoPage({
+  const ProfileInfoPage({super.key, 
     required this.name,
     required this.email,
     required this.phone,
@@ -92,7 +92,7 @@ class ProfileCard extends StatelessWidget {
   final String phone;
   final VoidCallback onEdit;
 
-  const ProfileCard({
+  const ProfileCard({super.key, 
     required this.name,
     required this.email,
     required this.phone,
@@ -176,7 +176,7 @@ class InfoCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onMorePressed; // New parameter
 
-  const InfoCard({
+  const InfoCard({super.key, 
     required this.icon,
     required this.title,
     required this.details,
