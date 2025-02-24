@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:soba_app/login.dart';
-import 'package:soba_app/checkin.dart'; //import checkin page
+import 'package:soba_app/checkin/checkin.dart'; //import checkin page
 
 void main() {
   runApp(const MainApp());
