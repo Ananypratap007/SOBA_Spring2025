@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:soba_app/login.dart';
-import 'package:soba_app/checkin/checkin.dart'; //import checkin page
+
+import 'domain/routes_and_state.dart'; //import checkin page
 
 void main() {
   runApp(const MainApp());
@@ -11,11 +11,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.orange,
-        body: CheckInScreen(),
-      ),
+    return MaterialApp.router(
+      routerConfig: router,
     );
   }
 }
