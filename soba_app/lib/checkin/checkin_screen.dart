@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:soba_app/checkin/checkin.dart';
+import 'package:soba_app/checkin/selfie_confirmation.dart';
+import 'package:soba_app/checkin/vehicle_picture.dart';
+import 'package:soba_app/checkin/vehicle_review.dart';
 
 class CheckinScreen extends StatefulWidget {
   const CheckinScreen({super.key});
@@ -11,12 +15,35 @@ class CheckinScreen extends StatefulWidget {
 class _CheckinScreenState extends State<CheckinScreen> {
   CheckinState _state = CheckinState.selfie;
 
+  String get _pageTitle {
+    switch (_state) {
+      case CheckinState.selfie:
+        return 'Checking in';
+      case CheckinState.selfieConfirmation:
+        return 'Checking in';
+      case CheckinState.vehicle:
+        return 'Vehicle Photo';
+      case CheckinState.vehicleReview:
+        return 'Vehicle Review';
+      case CheckinState.success:
+        return 'Success';
+    }
+  }
+
+  void _previousState() => _updateState(switch (_state) {
+        CheckinState.selfie => CheckinState.selfie,
+        CheckinState.selfieConfirmation => CheckinState.selfie,
+        CheckinState.vehicle => CheckinState.selfieConfirmation,
+        CheckinState.vehicleReview => CheckinState.vehicle,
+        CheckinState.success => CheckinState.selfie,
+      });
+
   void _updateState(CheckinState state) {
     // Do any checking to make sure we can go to this screen
     switch (state) {
       case CheckinState.selfie:
         break;
-      case CheckinState.selfieReview:
+      case CheckinState.selfieConfirmation:
         break;
       case CheckinState.vehicle:
         break;
@@ -36,58 +63,83 @@ class _CheckinScreenState extends State<CheckinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(top: 50),
-          width: double.infinity,
-          height: 120,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.orangeAccent, Colors.orange],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: const Center(
-            child: Text(
-              "Checking in",
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return Scaffold(
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 50),
+            width: double.infinity,
+            height: 120,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.orangeAccent, Colors.orange],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
+            child: Stack(
+              children: [
+                if (_state != CheckinState.selfie)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: Colors.white,
+                      onPressed: _previousState,
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: const Text(
+                      'exit',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      _updateState(CheckinState.selfie);
+                      context.go('/');
+                    },
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    _pageTitle,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        _currentPage,
-      ],
+          const SizedBox(height: 20),
+          Expanded(child: _currentPage),
+        ],
+      ),
     );
   }
 
   Widget get _currentPage {
     switch (_state) {
       case CheckinState.selfie:
-        return SelfiePageTemporary(
-          pageName: 'Selfie page',
-          onPressed: () => _updateState(CheckinState.selfieReview),
+        return SelfiePage(
+          onSelfieTaken: () => _updateState(CheckinState.selfieConfirmation),
         );
-      case CheckinState.selfieReview:
-        return SelfiePageTemporary(
-          pageName: 'Selfie review',
-          onPressed: () => _updateState(CheckinState.vehicle),
+      case CheckinState.selfieConfirmation:
+        return SelfieReviewScreen(
+          onSelfieConfirmed: () => _updateState(CheckinState.vehicle),
         );
-        return Text('Selfie review page');
+
       case CheckinState.vehicle:
-        return SelfiePageTemporary(
-          pageName: 'Vehicle',
-          onPressed: () => _updateState(CheckinState.vehicleReview),
+        return VehiclePhotoScreen(
+          onVehiclePhotoTaken: () => _updateState(CheckinState.vehicleReview),
         );
 
       case CheckinState.vehicleReview:
-        return SelfiePageTemporary(
-          pageName: 'Vehicle Review',
-          onPressed: () {
+        return VehicleReviewScreen(
+          onFinished: () {
             _updateState(CheckinState.selfie);
             context.go('/');
           },
@@ -125,7 +177,7 @@ class SelfiePageTemporary extends StatelessWidget {
 
 enum CheckinState {
   selfie,
-  selfieReview,
+  selfieConfirmation,
   vehicle,
   vehicleReview,
   success;
