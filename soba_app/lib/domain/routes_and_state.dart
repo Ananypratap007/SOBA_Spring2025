@@ -44,7 +44,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/checkin',
       builder: (BuildContext context, GoRouterState state) {
-        return HomeScreen();
+        return CheckinScreen();
       },
     ),
   ],
