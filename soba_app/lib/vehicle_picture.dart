@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'vehicle_review.dart';
 
-class VehicleReviewScreen extends StatelessWidget {
-  const VehicleReviewScreen({super.key});
+class VehiclePhotoScreen extends StatelessWidget {
+  const VehiclePhotoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class VehicleReviewScreen extends StatelessWidget {
             ),
             child: const Center(
               child: Text(
-                "Vehicle Review",
+                "Vehicle Photo",
                 style: TextStyle(
                   fontSize: 20, 
                   fontWeight: FontWeight.bold, 
@@ -38,17 +39,34 @@ class VehicleReviewScreen extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.directions_car,
-                  size: 120,
+                  size: 240,
                   color: Colors.grey,
                 ),
                 const SizedBox(height: 20),
-                const Text("Review your vehicle photo"),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle finish action (maybe navigate to home)
+                const Text(
+                  "Take a photo of parked car",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 30),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const VehicleReviewScreen()),
+                    );
                   },
-                  child: const Text("Finish"),
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt, 
+                      color: Colors.white, 
+                      size: 30,
+                    ),
+                  ),
                 ),
               ],
             ),

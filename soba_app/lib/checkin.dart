@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'selfieConfirmation.dart'; // Import the file where SelfieReviewScreen is defined
+import 'selfie_confirmation.dart'; // Import the file where SelfieReviewScreen is defined
 
 
 class CheckInScreen extends StatelessWidget {
