@@ -48,8 +48,8 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: NetworkImage(
-                            'https://randomuser.me/api/portraits/men/45.jpg'), // Placeholder image
+                        backgroundImage:
+                            NetworkImage('https://randomuser.me/api/portraits/men/45.jpg'), // Placeholder image
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -91,7 +91,9 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
-                      "Experiencing a mental health crisis. May be in distress, exhibiting signs of emotional instability, struggling with suicidal thoughts. A compassionate and calming approach is advised to ensure their safety.",
+                      "Experiencing a mental health crisis. May be in distress, exhibiting signs "
+                      "of emotional instability, struggling with suicidal thoughts. A "
+                      "compassionate and calming approach is advised to ensure their safety.",
                       style: TextStyle(fontSize: 14, color: Colors.white),
                     ),
                   ),
