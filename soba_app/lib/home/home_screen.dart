@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:soba_app/domain/colors.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -9,20 +10,17 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF003366),
-                Color(0xFF0066CC),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [const Color(0xFF003366), const Color(0xFF0066CC)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
+        ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle, size: 28, color: Colors.white),
+            icon: const Icon(Icons.account_circle, size: 28, color: Colors.black),
             onPressed: () {
               context.go('/profile'); // Navigate to Profile
             },
@@ -111,7 +109,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const Text(
-                    "Check in",
+                    "Start your visit",
                     style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),

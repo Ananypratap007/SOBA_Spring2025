@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orange.shade200, Colors.white],
+            colors: [Colors.blue.shade200, Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red.shade300,
+                      color: Colors.blue.shade300,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         },
                       ),
-                      const Text('Remember Me'),
+                      const Text('Keep me logged in'),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: widget.onLoggedIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade300,
+                      backgroundColor: Colors.blue.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -153,9 +153,9 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(width: 20),
                       IconButton(
                         onPressed: () {
-                          print('Facebook Login');
+                          print('Apple Login');
                         },
-                        icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.blue, size: 30),
+                        icon: const FaIcon(FontAwesomeIcons.apple, color: Colors.black, size: 30),
                       ),
                     ],
                   ),
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text(
                       "Don't have an account? Sign up here",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.blue),
                     ),
                   ),
                   TextButton(
@@ -177,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text(
                       "Forgot your password? Reset it here",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.blue),
                     ),
                   ),
 
