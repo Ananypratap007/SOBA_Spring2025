@@ -141,7 +141,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
         return VehicleReviewScreen(
           onFinished: () {
             _updateState(CheckinState.selfie);
-            context.go('/');
+            context.go('/visit');
           },
         );
       case CheckinState.success:

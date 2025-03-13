@@ -4,6 +4,7 @@ import 'package:soba_app/bottom_nav_screen.dart';
 import 'package:soba_app/checkin/checkin_screen.dart';
 import 'package:soba_app/domain/profile_model.dart';
 import 'package:soba_app/home/home_screen.dart';
+import 'package:soba_app/home/visit_screen.dart';
 import 'package:soba_app/login/login_screen.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
 import 'package:soba_app/profile/profile_screen.dart';
@@ -25,6 +26,15 @@ final GoRouter router = GoRouter(
         );
       },
     ),
+    GoRoute(
+  path: '/visit',
+  builder: (BuildContext context, GoRouterState state) {
+        return PageWithBottomNav(
+          child: VisitScreen(),
+        );
+  },
+),
+
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
@@ -48,6 +58,7 @@ final GoRouter router = GoRouter(
       },
     ),
   ],
+  
   // This is where we will handle the login - check if the user is logged in
   // and redirect if not.
   redirect: (state, goRouterState) => _ifLoggedIn ? null : '/login',
