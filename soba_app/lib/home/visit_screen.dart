@@ -16,7 +16,7 @@ class _VisitScreenState extends State<VisitScreen> {
   @override
   void initState() {
     super.initState();
-    startTimer();
+    //startTimer();
   }
 
   void startTimer() {
@@ -186,8 +186,14 @@ class _VisitScreenState extends State<VisitScreen> {
                   // "Check in" button
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to your check-in page
-                      // context.go('/checkin');
+                      // Reset timer duration (optional)
+                      setState(() {
+                      _remaining = const Duration(minutes: 45, seconds: 0);
+                      });
+                      // Cancel any existing timer if it's running
+                      _timer?.cancel();
+                     // Start the timer
+                    startTimer();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,

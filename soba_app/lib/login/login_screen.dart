@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: Center(
           child: Container(
-            width: 350,
+          width: MediaQuery.of(context).size.width * 0.9, // 85% of screen width
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(_isPasswordObscured ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(_isPasswordObscured ? Icons.visibility_off : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             _isPasswordObscured = !_isPasswordObscured;
