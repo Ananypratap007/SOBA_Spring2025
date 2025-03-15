@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
+import 'package:soba_app/auth_state.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -129,8 +131,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 elevation: 2,
                 child: InkWell(
                   onTap: () {
-                    // TODO: Implement your logout functionality here.
+                  isLoggedIn = false; // update the auth state
+                  context.go('/login');
                   },
+
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Center(
