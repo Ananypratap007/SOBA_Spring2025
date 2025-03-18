@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
-class SelfiePage extends StatelessWidget {
+class SelfiePage extends StatefulWidget {
   const SelfiePage({
     super.key,
     this.onSelfieTaken,
@@ -9,40 +12,89 @@ class SelfiePage extends StatelessWidget {
   final VoidCallback? onSelfieTaken;
 
   @override
+  State<SelfiePage> createState() => _SelfiePageState();
+}
+
+class _SelfiePageState extends State<SelfiePage> {
+  CameraController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    if (cameras.isEmpty) return;
+
+    _controller = CameraController(
+      cameras.first,
+      ResolutionPreset.medium,
+      enableAudio: false,
+    );
+
+    try {
+      await _controller!.initialize();
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error initializing camera: $e');
+    }
+  }
+
+  Future<void> _takePicture() async {
+    if (!_isInitialized) return;
+
+    try {
+      final image = await _controller!.takePicture();
+      widget.onSelfieTaken?.call();
+    } catch (e) {
+      debugPrint('Error taking picture: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Column(
       children: [
         Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              // Replace the image with a large icon
-              const Icon(
-                Icons.camera_front,
-                size: 240,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Take a selfie for identification",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-              // TODO: Convert to an IconButton
-              GestureDetector(
-                onTap: () {
-                  onSelfieTaken?.call();
-                }, //
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 30,
+              CameraPreview(_controller!),
+              Positioned(
+                bottom: 30,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: _takePicture,
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: const BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
                   ),
                 ),
               ),
