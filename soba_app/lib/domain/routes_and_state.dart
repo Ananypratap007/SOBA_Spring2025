@@ -6,6 +6,7 @@ import 'package:soba_app/domain/profile_model.dart';
 import 'package:soba_app/home/home_screen.dart';
 import 'package:soba_app/home/visit_screen.dart';
 import 'package:soba_app/login/login_screen.dart';
+import 'package:soba_app/map/map_screen.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
 import 'package:soba_app/profile/profile_screen.dart';
 
@@ -39,6 +40,12 @@ final GoRouter router = GoRouter(
       path: '/',
       builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
         child: HomeScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/map',
+      builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
+        child: MapScreen(),
       ),
     ),
     GoRoute(
