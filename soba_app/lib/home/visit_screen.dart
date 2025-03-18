@@ -223,8 +223,7 @@ class _VisitScreenState extends State<VisitScreen> {
             // ===================
             GestureDetector(
               onTap: () {
-                // Handle end visit tap here
-                // context.go('/endvisit');
+                context.go('/');
               },
               child: Container(
                 width: double.infinity,
