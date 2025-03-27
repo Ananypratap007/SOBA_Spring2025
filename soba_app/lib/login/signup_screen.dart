@@ -81,9 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created successfully!')),
-        );
+        // Call the completion callback
         widget.onSignUpComplete?.call();
       }
     } on FirebaseAuthException catch (e) {

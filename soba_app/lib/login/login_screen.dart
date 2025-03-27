@@ -243,8 +243,16 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SignUpPage(
-                            onSignUpComplete: null,
+                          builder: (context) => SignUpPage(
+                            onSignUpComplete: () {
+                              Navigator.pop(context); // Close the signup screen
+                              // Show success message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Account created successfully! Please log in.'),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       );
