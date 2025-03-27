@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'checkintimer.dart';
 import 'profile.dart';
+import 'tiles.dart';
 
 final GoRouter router = GoRouter(routes: [
   GoRoute(
@@ -13,5 +14,9 @@ final GoRouter router = GoRouter(routes: [
         final initialDuration =
             state.extra as Duration? ?? Duration(minutes: 10);
         return CheckInTimer(initialDuration: initialDuration);
-      })
+      }),
+  GoRoute(
+    path: '/tiles',
+    builder: (context, state) => TilesPage(),
+  )
 ]);
