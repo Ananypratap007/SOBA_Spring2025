@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'checkintimer.dart';
 import 'profile.dart';
-import 'tiles.dart';
+import 'addemergencycontact.dart';
 
 final GoRouter router = GoRouter(routes: [
   GoRoute(
@@ -16,7 +16,7 @@ final GoRouter router = GoRouter(routes: [
         return CheckInTimer(initialDuration: initialDuration);
       }),
   GoRoute(
-    path: '/tiles',
-    builder: (context, state) => TilesPage(),
-  )
+    path: '/add-emergency-contact',
+    builder: (context, state) => AddEmergencyContactScreen(),
+  ),
 ]);
