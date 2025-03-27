@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,8 +21,38 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Duration _checkInDuration = const Duration(minutes: 10);
+
+  String _formatDuration(Duration duration) {
+    final int hours = duration.inHours;
+    final int minutes = duration.inMinutes % 60;
+
+    if (hours == 0) {
+      return '$minutes minute${minutes == 1 ? '' : 's'}';
+    } else if (minutes == 0) {
+      return '$hours hour${hours == 1 ? '' : 's'}';
+    } else {
+      return '$hours hour${hours == 1 ? '' : 's'} and $minutes minute${minutes == 1 ? '' : 's'}';
+    }
+  }
+
+  void _navigateToCheckIn(BuildContext context) async {
+    final updatedDuration = await context.push<Duration>(
+      '/check-in',
+      extra: _checkInDuration,
+    );
+    if (updatedDuration != null) {
+      setState(() => _checkInDuration = updatedDuration);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,11 +187,12 @@ class ProfileScreen extends StatelessWidget {
                       color: Colors.white, // Background color
                       padding: const EdgeInsets.all(16.0), // Optional padding
                       child: Column(
-                        children: const [
+                        children: [
                           _InfoTile(
                             label: 'Check-In',
-                            value: 'Every 10 minutes',
+                            value: 'Every ${_formatDuration(_checkInDuration)}',
                             hasArrow: true,
+                            onTap: () => _navigateToCheckIn(context),
                           ),
                           _InfoTile(
                             label: 'Emergency Contact',
@@ -242,12 +274,14 @@ class _InfoTile extends StatelessWidget {
   final String label;
   final String value;
   final bool hasArrow;
+  final VoidCallback? onTap;
 
   const _InfoTile({
     Key? key,
     required this.label,
     required this.value,
     this.hasArrow = false,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -257,6 +291,7 @@ class _InfoTile extends StatelessWidget {
       subtitle: value.isNotEmpty ? Text(value) : null,
       trailing: hasArrow ? const Icon(Icons.arrow_forward_ios, size: 16) : null,
       dense: true,
+      onTap: onTap,
     );
   }
 }
