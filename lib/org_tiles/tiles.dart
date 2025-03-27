@@ -80,26 +80,6 @@ class TilesPage extends StatelessWidget {
               child:
                   Image.asset('assets/maps_placeholder.png', fit: BoxFit.cover),
             ),
-            Positioned(
-              top: 40,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.all(8.0),
-                color: Colors.redAccent,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Active Responders: 3',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                    Text('Incident Reported: 0',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -129,7 +109,6 @@ class Responder {
 
 class ResponderTile extends StatelessWidget {
   final Responder responder;
-
   const ResponderTile({Key? key, required this.responder}) : super(key: key);
 
   @override
