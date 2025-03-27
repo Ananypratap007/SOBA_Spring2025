@@ -1,3 +1,6 @@
+/// The above code defines a Flutter application that displays a user profile screen with account
+/// information, organization settings, privacy & security options, and allows for interactions like
+/// updating check-in duration and enabling wellness check-up.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +33,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Duration _checkInDuration = const Duration(minutes: 10);
+  bool _wellnessCheckEnabled = false;
+  List<Map<String, String>> _emergencyContacts =
+      []; // List to hold the emergency contacts
 
   String _formatDuration(Duration duration) {
     final int hours = duration.inHours;
@@ -185,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     child: Container(
                       color: Colors.white, // Background color
-                      padding: const EdgeInsets.all(16.0), // Optional padding
+                      padding: const EdgeInsets.all(12.0), // Optional padding
                       child: Column(
                         children: [
                           _InfoTile(
@@ -196,13 +202,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           _InfoTile(
                             label: 'Emergency Contact',
-                            value: 'Jeremy Westin',
+                            value: _emergencyContacts.isNotEmpty
+                                ? _emergencyContacts
+                                    .map((e) => e['name'])
+                                    .join(', ')
+                                : 'None Added',
                             hasArrow: true,
+                            onTap: () async {
+                              final contact =
+                                  await context.push<Map<String, String>>(
+                                      '/add-emergency-contact');
+                              if (contact != null) {
+                                setState(() => _emergencyContacts.add(contact));
+                              }
+                            },
                           ),
                           _InfoTile(
                             label: 'Wellness Check-Up',
-                            value: 'Deactivate',
-                            hasArrow: true,
+                            value: '',
+                            trailing: Transform.scale(
+                                scale: 0.65,
+                                child: Switch(
+                                    value: _wellnessCheckEnabled,
+                                    activeColor: Colors.green,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        _wellnessCheckEnabled = value;
+                                      });
+                                    })),
                           ),
                           _InfoTile(
                             label: 'Theme & Appearance',
@@ -261,7 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 4),
           ],
         ),
       ),
@@ -275,6 +302,7 @@ class _InfoTile extends StatelessWidget {
   final String value;
   final bool hasArrow;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   const _InfoTile({
     Key? key,
@@ -282,6 +310,7 @@ class _InfoTile extends StatelessWidget {
     required this.value,
     this.hasArrow = false,
     this.onTap,
+    this.trailing,
   }) : super(key: key);
 
   @override
@@ -289,7 +318,8 @@ class _InfoTile extends StatelessWidget {
     return ListTile(
       title: Text(label),
       subtitle: value.isNotEmpty ? Text(value) : null,
-      trailing: hasArrow ? const Icon(Icons.arrow_forward_ios, size: 16) : null,
+      trailing: trailing ??
+          (hasArrow ? const Icon(Icons.arrow_forward_ios, size: 16) : null),
       dense: true,
       onTap: onTap,
     );
