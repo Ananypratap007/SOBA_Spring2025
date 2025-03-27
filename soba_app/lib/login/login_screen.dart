@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:soba_app/firebase_config.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'signup_screen.dart';
 //import 'package:soba_app/main_page.dart';
 
@@ -12,23 +16,98 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   bool _isPasswordObscured = true;
   bool _isRememberMeOn = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
     _passwordController = TextEditingController();
+    _checkRememberMeStatus();
+  }
+
+  Future<void> _checkRememberMeStatus() async {
+    // Check if there's a saved user session
+    final user = FirebaseConfig.auth.currentUser;
+    if (user != null) {
+      setState(() {
+        _isRememberMeOn = true;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Sign in with email and password
+      await FirebaseConfig.auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Update last login timestamp in Firestore
+      final user = FirebaseConfig.auth.currentUser;
+      if (user != null) {
+        await FirebaseConfig.firestore.collection('users').doc(user.uid).update({
+          'lastLogin': FieldValue.serverTimestamp(),
+          'rememberMe': _isRememberMeOn, // Store the remember me preference
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login successful!')),
+        );
+        widget.onLoggedIn?.call();
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = 'An error occurred during login';
+      if (e.code == 'user-not-found') {
+        message = 'No user found with this email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Wrong password provided.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is invalid.';
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -44,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: Center(
           child: Container(
-          width: MediaQuery.of(context).size.width * 0.9, // 85% of screen width
+            width: MediaQuery.of(context).size.width * 0.9,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -75,11 +154,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Username TextField
+                  // Email TextField
                   TextField(
-                    controller: _usernameController,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Username',
+                      labelText: 'Email',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -108,25 +188,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Remember Me Checkbox
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _isRememberMeOn,
-                        onChanged: (value) {
-                          setState(() {
-                            _isRememberMeOn = value!;
-                          });
-                        },
-                      ),
-                      const Text('Keep me logged in'),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+                 
 
                   // Login Button
                   ElevatedButton(
-                    onPressed: widget.onLoggedIn,
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -134,10 +200,19 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(fontSize: 18),
+                          ),
                   ),
                   const SizedBox(height: 16),
 
@@ -169,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const SignUpPage(
-                            onSignUpComplete: null, // You can implement this callback later
+                            onSignUpComplete: null,
                           ),
                         ),
                       );

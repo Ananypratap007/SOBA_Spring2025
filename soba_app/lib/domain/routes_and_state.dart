@@ -9,8 +9,11 @@ import 'package:soba_app/login/login_screen.dart';
 import 'package:soba_app/map/map_screen.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
 import 'package:soba_app/profile/profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-bool _ifLoggedIn = false;
+// Create a stream to listen to auth state changes
+final authStateStream = FirebaseAuth.instance.authStateChanges();
+
 final ProfileModel _currentUser = dummyUsers[0];
 
 final GoRouter router = GoRouter(
@@ -21,21 +24,19 @@ final GoRouter router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return LoginPage(
           onLoggedIn: () {
-            _ifLoggedIn = true;
             context.go('/');
           },
         );
       },
     ),
     GoRoute(
-  path: '/visit',
-  builder: (BuildContext context, GoRouterState state) {
+      path: '/visit',
+      builder: (BuildContext context, GoRouterState state) {
         return PageWithBottomNav(
           child: VisitScreen(),
         );
-  },
-),
-
+      },
+    ),
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
@@ -66,9 +67,26 @@ final GoRouter router = GoRouter(
     ),
   ],
   
-  // This is where we will handle the login - check if the user is logged in
-  // and redirect if not.
-  redirect: (state, goRouterState) => _ifLoggedIn ? null : '/login',
+  // Handle authentication state and redirect accordingly
+  redirect: (context, state) {
+    // Get the current user
+    final user = FirebaseAuth.instance.currentUser;
+    
+    // Check if we're on the login page
+    final isLoginRoute = state.matchedLocation == '/login';
+    
+    // If there's no user and we're not on the login page, redirect to login
+    if (user == null && !isLoginRoute) {
+      return '/login';
+    }
+    
+    // If there is a user and we're on the login page, redirect to home
+    if (user != null && isLoginRoute) {
+      return '/';
+    }
+    
+    return null;
+  },
 );
 
 /*

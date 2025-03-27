@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:soba_app/firebase_config.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key, this.onSignUpComplete});
@@ -15,9 +18,8 @@ class _SignUpPageState extends State<SignUpPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
-  // Removed toggle variables since we always want the text to be obscured.
-
   bool _isTermsAccepted = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,6 +37,84 @@ class _SignUpPageState extends State<SignUpPage> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleSignUp() async {
+    if (!_isTermsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept the terms and conditions')),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    if (_passwordController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters long')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Create user with email and password
+      final userCredential = await FirebaseConfig.auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Store additional user data in Firestore
+      await FirebaseConfig.firestore.collection('users').doc(userCredential.user!.uid).set({
+        'username': _usernameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastLogin': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created successfully!')),
+        );
+        widget.onSignUpComplete?.call();
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = 'An error occurred during sign up';
+      if (e.code == 'weak-password') {
+        message = 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'An account already exists for that email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is invalid.';
+      } else if (e.code == 'operation-not-allowed') {
+        message = 'Email/password accounts are not enabled. Please contact support.';
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -106,7 +186,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password TextField (always obscured)
+                  // Password TextField
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
@@ -115,12 +195,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      // Toggle icon removed.
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Confirm Password TextField (always obscured)
+                  // Confirm Password TextField
                   TextField(
                     controller: _confirmPasswordController,
                     obscureText: true,
@@ -129,7 +208,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      // Toggle icon removed.
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -157,7 +235,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                   // Sign Up Button
                   ElevatedButton(
-                    onPressed: _isTermsAccepted ? widget.onSignUpComplete : null,
+                    onPressed: _isLoading ? null : _handleSignUp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -165,10 +243,19 @@ class _SignUpPageState extends State<SignUpPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Sign Up',
+                            style: TextStyle(fontSize: 18),
+                          ),
                   ),
                   const SizedBox(height: 16),
 

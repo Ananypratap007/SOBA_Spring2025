@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147662724869",
+    "project_id": "sobaapp-79efd",
+    "storage_bucket": "sobaapp-79efd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147662724869:android:049931dbc33f8c3dcba16c",
+        "android_client_info": {
+          "package_name": "com.example.soba_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXoyPtoPnpyIsajxd-gn3V8o9ubwAa3iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

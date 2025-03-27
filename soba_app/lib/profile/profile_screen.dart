@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
 import 'package:soba_app/auth_state.dart';
+import 'package:soba_app/firebase_config.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -130,11 +132,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 elevation: 2,
                 child: InkWell(
-                  onTap: () {
-                  isLoggedIn = false; // update the auth state
-                  context.go('/login');
+                  onTap: () async {
+                    try {
+                      await FirebaseConfig.auth.signOut();
+                      if (mounted) {
+                        context.go('/login');
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error signing out: ${e.toString()}')),
+                        );
+                      }
+                    }
                   },
-
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Center(

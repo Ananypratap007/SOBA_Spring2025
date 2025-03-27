@@ -16,6 +16,10 @@ dependencies:
   path: ^1.8.3
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
+  firebase_core: ^2.27.1
+  firebase_auth: ^4.17.9
+  cloud_firestore: ^4.15.9
+  firebase_storage: ^11.6.10
 
 dev_dependencies:
   flutter_test:
