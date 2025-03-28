@@ -29,8 +29,14 @@ class _SelfiePageState extends State<SelfiePage> {
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
 
+    // Find the front camera
+    final frontCamera = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.front,
+      orElse: () => cameras.first,
+    );
+
     _controller = CameraController(
-      cameras.first,
+      frontCamera,
       ResolutionPreset.medium,
       enableAudio: false,
     );
