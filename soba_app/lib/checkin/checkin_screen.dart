@@ -70,13 +70,13 @@ class _CheckinScreenState extends State<CheckinScreen> {
             padding: const EdgeInsets.only(top: 50),
             width: double.infinity,
             height: 120,
-            decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [const Color(0xFF003366), const Color(0xFF0066CC)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
             child: Stack(
               children: [
                 if (_state != CheckinState.selfie)

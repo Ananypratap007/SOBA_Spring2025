@@ -63,7 +63,7 @@ class _VisitScreenState extends State<VisitScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF003366), Color(0xFF0066CC)],
+              colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -83,7 +83,7 @@ class _VisitScreenState extends State<VisitScreen> {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C4CA3), // A deep blue background
+                color: const Color.fromARGB(255, 10, 74, 139), // A deep blue background
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -128,7 +128,7 @@ class _VisitScreenState extends State<VisitScreen> {
                 ),
                 child: const Center(
                   child: Text(
-                    'Are you in an emergency?\nTap Here',
+                    'ARE YOU IN AN EMERGENCY?\nTap Here',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -148,7 +148,7 @@ class _VisitScreenState extends State<VisitScreen> {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFF003366), // Darker blue
+                color: const Color.fromARGB(255, 10, 74, 139), // Darker blue
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

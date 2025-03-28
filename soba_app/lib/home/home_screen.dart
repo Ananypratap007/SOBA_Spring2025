@@ -31,13 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF003366), Color(0xFF0066CC)],
+              colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
           ),
         ),
-       
         elevation: 0,
       ),
 
@@ -52,8 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF0066CC),
+                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.9), // Shadow color
+                    blurRadius: 6, // Blur radius
+                    offset: const Offset(0, 4), // Offset for shadow
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Color(0xFF4DA6FF), // A lighter blue for contrast
+                      color: Color(0xFF5DAEFF), // Slightly lighter shade for text box
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
@@ -147,8 +153,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue[700],
+                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2), // Shadow color
+                    blurRadius: 6, // Blur radius
+                    offset: const Offset(0, 4), // Offset for shadow
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -204,8 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue[700],
+                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2), // Shadow color
+                    blurRadius: 6, // Blur radius
+                    offset: const Offset(0, 4), // Offset for shadow
+                  ),
+                ],
               ),
               child: Column(
                 children: [

@@ -21,62 +21,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Wrap the scrollable content in Expanded so it takes up available space.
-            Expanded(
+      body: Column( // Remove SafeArea here
+        children: [
+          // Top Profile Header
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 24.0,
+              horizontal: 16.0,
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
+                    color: const Color(0xFF003366),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Ananya Gupta',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'ananyabusiness@hotmail.com',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '123-456-7890',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SafeArea( // Wrap only the scrollable content in SafeArea
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Top Profile Header
-                    Container(
-                      width: double.infinity,
-                      color: Colors.blue,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 24.0,
-                        horizontal: 16.0,
-                      ),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.person,
-                              size: 40,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Ananya Gupta',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'ananyabusiness@hotmail.com',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            '123-456-7890',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
                     // Personal Information Card (Expandable)
                     _buildExpandableInfoCard(
                       icon: Icons.person,
@@ -121,49 +125,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-
-            // Logout Button at the very bottom
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                color: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 2,
-                child: InkWell(
-                  onTap: () async {
-                    try {
-                      await FirebaseConfig.auth.signOut();
-                      if (mounted) {
-                        context.go('/login');
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error signing out: ${e.toString()}')),
-                        );
-                      }
+          ),
+          // Logout Button at the very bottom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              color: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 2,
+              child: InkWell(
+                onTap: () async {
+                  try {
+                    await FirebaseConfig.auth.signOut();
+                    if (mounted) {
+                      context.go('/login');
                     }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        'Logout',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error signing out: ${e.toString()}')),
+                      );
+                    }
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      'Logout',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -180,75 +183,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      elevation: 2,
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.all(16),
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(icon, color: Colors.blue),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+      elevation: 0, // Remove default elevation
+      color: const Color.fromARGB(255, 10, 74, 139), // Updated card color
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 10, 74, 139), // Match card color
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2), // Shadow color
+              blurRadius: 6, // Blur radius
+              offset: const Offset(0, 4), // Offset for shadow
             ),
           ],
         ),
-        children: details.map((detail) {
-          if (detail.isSubheading) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 4.0,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.all(16),
+          iconColor: Colors.white, // Set arrow icon color when expanded
+          collapsedIconColor: Colors.white, // Set arrow icon color when collapsed
+          title: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(icon, color: const Color(0xFF003366)), // Icon color
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 140,
-                    child: Text(
-                      detail.label,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white, // Set text color to white
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          children: details.map((detail) {
+            if (detail.isSubheading) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 4.0,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: Text(
+                        detail.label,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Set subheading text color to white
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(),
-                ],
-              ),
-            );
-          } else {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 4.0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 140,
-                    child: Text(
-                      '${detail.label}:',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(),
+                  ],
+                ),
+              );
+            } else {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 4.0,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: Text(
+                        '${detail.label}:',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Set label text color to white
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(child: Text(detail.value)),
-                ],
-              ),
-            );
-          }
-        }).toList(),
+                    Expanded(
+                      child: Text(
+                        detail.value,
+                        style: const TextStyle(
+                          color: Colors.white, // Set value text color to white
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+          }).toList(),
+        ),
       ),
     );
   }
