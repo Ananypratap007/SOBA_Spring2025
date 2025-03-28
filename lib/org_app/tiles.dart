@@ -27,7 +27,7 @@ class TilesPage extends StatefulWidget {
 class _TilesPageState extends State<TilesPage> {
   final List<Responder> responders = [
     Responder(
-      name: 'Helena Furman',
+      name: 'Jack Furman',
       location: 'Norman, OK',
       assignedTo: 'Jane Doe',
       date: 'March 3, 2025',
@@ -37,24 +37,24 @@ class _TilesPageState extends State<TilesPage> {
           'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     ),
     Responder(
-      name: 'Jack Moore',
+      name: 'Holden Moore',
       location: 'OK City, OK',
       assignedTo: 'Amanda Key',
       date: 'March 3, 2025',
       time: 'Today, 5:37 PM',
       status: 'On Site',
       image:
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://plus.unsplash.com/premium_photo-1671656349322-41de944d259b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     ),
     Responder(
-      name: 'Linda Smith',
+      name: 'Elle Smith',
       location: 'Noble, OK',
       assignedTo: 'Patrick DeVoe',
       date: 'March 3, 2025',
       time: 'Today, 6:30 PM',
       status: 'Returning',
       image:
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
     ),
   ];
 
@@ -63,6 +63,7 @@ class _TilesPageState extends State<TilesPage> {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
+        currentIndex: 1,
         selectedItemColor: Colors.blue[900],
         unselectedItemColor: Colors.grey,
         items: [
@@ -82,12 +83,25 @@ class _TilesPageState extends State<TilesPage> {
             return ResponderTile(responder: responders[index]);
           },
         ),
-        body: Stack(
+        body: Column(
           children: [
-            Positioned.fill(
-              child:
-                  Image.asset('assets/maps_placeholder.png', fit: BoxFit.cover),
-            ),
+            Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.fromLTRB(8.0, 6.5 * 8.0, 8.0, 8.0),
+                decoration: BoxDecoration(
+                  color: (Colors.blue[900])!,
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_back,
+                        color: Colors.white,
+                        size: 40), // TODO: Add functionality
+                    Expanded(child: SizedBox.shrink()),
+                    _SearchBar(Color.fromARGB(255, 245, 245, 245)),
+                  ],
+                )),
+            Image.asset('assets/maps_placeholder.png',
+                scale: 0.945, width: double.infinity, fit: BoxFit.fitWidth),
           ],
         ),
       ),
@@ -125,7 +139,7 @@ class ResponderTile extends StatelessWidget {
       onTap: () => context.go('profile'),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: Colors.green[300],
+        color: Colors.blue[900],
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -148,7 +162,7 @@ class ResponderTile extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue[900])),
+                            color: Colors.green[300])),
                   ],
                 ),
               ),
@@ -158,4 +172,38 @@ class ResponderTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SearchBar extends StatelessWidget {
+  final grey = const Color(0xFFF2F2F7);
+  final Color color;
+  _SearchBar(this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.75 * MediaQuery.of(context).size.width,
+      child: TextFormField(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          focusColor: color,
+          border: _border(grey),
+          enabledBorder: _border(grey),
+          hintText: 'Search here...',
+          contentPadding: const EdgeInsets.symmetric(vertical: 8.0 / 2),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Colors.grey,
+          ),
+        ),
+        onFieldSubmitted: (value) {},
+      ),
+    );
+  }
+
+  OutlineInputBorder _border(Color color) => OutlineInputBorder(
+        borderSide: BorderSide(width: 0.5, color: color),
+        borderRadius: BorderRadius.circular(12),
+      );
 }
