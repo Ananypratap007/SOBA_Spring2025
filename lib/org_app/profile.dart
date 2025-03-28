@@ -3,6 +3,7 @@
 /// updating check-in duration and enabling wellness check-up.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 
 void main() {
   runApp(const MyApp());
@@ -202,16 +203,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           _InfoTile(
                             label: 'Emergency Contact',
-                            value: _emergencyContacts.isNotEmpty
-                                ? _emergencyContacts
-                                    .map((e) => e['name'])
+                            value: Hive.box('emergencyContacts').isNotEmpty
+                                ? Hive.box('emergencyContacts')
+                                    .values
+                                    .map<String>((e) => e['name'] as String)
                                     .join(', ')
                                 : 'None Added',
                             hasArrow: true,
                             onTap: () async {
                               final contact =
                                   await context.push<Map<String, String>>(
-                                      '/add-emergency-contact');
+                                      '/emergency-contacts');
                               if (contact != null) {
                                 setState(() => _emergencyContacts.add(contact));
                               }

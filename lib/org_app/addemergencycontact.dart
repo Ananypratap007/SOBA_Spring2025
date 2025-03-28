@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 
 class AddEmergencyContactScreen extends StatefulWidget {
-  const AddEmergencyContactScreen({Key? key}) : super(key: key);
+  final Map<String, String>? contact;
+  final int? index;
+
+  const AddEmergencyContactScreen({Key? key, this.contact, this.index})
+      : super(key: key);
 
   @override
   State<AddEmergencyContactScreen> createState() =>
@@ -23,6 +28,16 @@ class _AddEmergencyContactScreenState extends State<AddEmergencyContactScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.contact != null) {
+      _nameController.text = widget.contact!['name'] ?? '';
+      _relationController.text = widget.contact!['relation'] ?? '';
+      _phoneController.text = widget.contact!['phone'] ?? '';
+    }
+  }
+
   void _saveContact() {
     if (_formKey.currentState!.validate()) {
       final contact = {
@@ -30,7 +45,14 @@ class _AddEmergencyContactScreenState extends State<AddEmergencyContactScreen> {
         'relation': _relationController.text,
         'phone': _phoneController.text,
       };
-      context.pop(contact); // 👈 return data to previous screen
+
+      final box = Hive.box('emergencyContacts');
+      if (widget.index != null) {
+        box.putAt(widget.index!, contact);
+      } else {
+        box.add(contact);
+      }
+      context.pop();
     }
   }
 
