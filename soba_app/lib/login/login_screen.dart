@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   // Welcome Text
                   Text(
-                    'Welcome to a 988 Service!',
+                    'Welcome to Universal Safety!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,

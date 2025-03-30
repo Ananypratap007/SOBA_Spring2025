@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:soba_app/firebase_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:soba_app/login/terms.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key, this.onSignUpComplete});
@@ -14,6 +16,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
   late final TextEditingController _usernameController;
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
@@ -24,6 +28,8 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
     _usernameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
@@ -32,6 +38,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -74,6 +82,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // Store additional user data in Firestore
       await FirebaseConfig.firestore.collection('users').doc(userCredential.user!.uid).set({
+        'name': _nameController.text.trim(),
+        'phone': _phoneController.text.trim(),
         'username': _usernameController.text.trim(),
         'email': _emailController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
@@ -159,6 +169,32 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   const SizedBox(height: 20),
 
+                  // Name TextField
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Phone Number TextField
+                  TextField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixText: '+1 ',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Username TextField
                   TextField(
                     controller: _usernameController,
@@ -222,9 +258,29 @@ class _SignUpPageState extends State<SignUpPage> {
                         },
                       ),
                       Expanded(
-                        child: Text(
-                          'I accept the Terms and Conditions',
-                          style: TextStyle(color: Colors.grey.shade700),
+                        child: RichText(
+                          text: TextSpan(
+                            text: 'I accept the ',
+                            style: TextStyle(color: Colors.grey.shade700),
+                            children: [
+                              TextSpan(
+                                text: 'Terms and Conditions',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const TermsAndConditionsPage(),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -291,11 +347,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                   // Help Text
                   const SizedBox(height: 10),
-                  const Text(
-                    "Need help? Call the 988 Hotline anytime.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  
                 ],
               ),
             ),
