@@ -33,6 +33,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: const Text('Profile'),
+      centerTitle: true,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.go('/'),
+      ),
+    );
+  }
+
   Duration _checkInDuration = const Duration(minutes: 10);
   bool _wellnessCheckEnabled = false;
   List<Map<String, String>> _emergencyContacts =
@@ -66,11 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Use a SingleChildScrollView if the content might overflow
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 245, 245, 245),
-      appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
-        elevation: 0,
-      ),
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [

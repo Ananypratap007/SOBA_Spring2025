@@ -9,9 +9,14 @@ import 'org_app/profile.dart';
 import 'org_app/checkintimer.dart';
 import 'org_app/addemergencycontact.dart';
 import 'org_app/emergency_contacts_list.dart';
+import 'org_app/tiles.dart';
+import 'org_app/register_org_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase
+  await Firebase.initializeApp();
 
   if (kDebugMode) {
     await resetHive();
@@ -39,6 +44,11 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
+      builder: (context, state) => const ProfileScreen(),
+      // const OrganizationRegistration(), const ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
       builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(

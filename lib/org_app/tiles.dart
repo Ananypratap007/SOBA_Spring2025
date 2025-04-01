@@ -25,6 +25,22 @@ class TilesPage extends StatefulWidget {
 }
 
 class _TilesPageState extends State<TilesPage> {
+  int _currentIndex = 1; // Initialize with map index
+
+  void _onNavigationTapped(int index) {
+    setState(() => _currentIndex = index);
+    switch (index) {
+      case 0:
+        context.go('/');
+        break;
+      case 1:
+        break;
+      case 2:
+        context.go('/profile');
+        break;
+    }
+  }
+
   final List<Responder> responders = [
     Responder(
       name: 'Jack Furman',
@@ -66,6 +82,7 @@ class _TilesPageState extends State<TilesPage> {
         currentIndex: 1,
         selectedItemColor: Colors.blue[900],
         unselectedItemColor: Colors.grey,
+        onTap: _onNavigationTapped,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
