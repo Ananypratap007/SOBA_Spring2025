@@ -8,14 +8,36 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   bool connected = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // Page background
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50], // Slightly off-white for better contrast
 
       // Gradient AppBar
       appBar: AppBar(
@@ -23,21 +45,30 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text(
           'Dashboard',
           style: TextStyle(
-            color: Colors.white, 
-            fontSize: 20, 
+            color: Colors.white,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              colors: [Color(0xFF01284D), Color(0xFF0A4A8B)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
-        elevation: 0,
+        elevation: 4, // Add shadow for depth
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            onPressed: () {
+              // Notifications button action
+            },
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(
@@ -49,15 +80,21 @@ class _HomeScreenState extends State<HomeScreen> {
             // ===================
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0A4A8B), Color(0xFF0B5AA6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.9), // Shadow color
-                    blurRadius: 6, // Blur radius
-                    offset: const Offset(0, 4), // Offset for shadow
+                    color: Colors.blue.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -68,118 +105,194 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Upcoming Job",
-                        style: TextStyle(
-                          fontSize: 18, 
-                          color: Colors.white, 
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       Row(
                         children: const [
+                          Icon(Icons.work_outline, color: Colors.white, size: 22),
+                          SizedBox(width: 8),
                           Text(
-                            "Status: URGENT",
+                            "Upcoming Job",
                             style: TextStyle(
-                              fontSize: 16, 
-                              color: Colors.white, 
-                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(
-                            Icons.warning, 
-                            color: Colors.red, 
-                            size: 18,
                           ),
                         ],
                       ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            FadeTransition(
+                              opacity: _animation,
+                              child: const Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              "URGENT",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   // Recipient Info
-                  const Text(
-                    "Recipient: Brad Miller",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Row(
+                          children: [
+                            Icon(Icons.person, color: Colors.white70, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Recipient: Brad Miller",
+                                style: TextStyle(fontSize: 16, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.cake, color: Colors.white70, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Age: 47",
+                                style: TextStyle(fontSize: 16, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on, color: Colors.white70, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Address: 5639 Kings Row, 73808",
+                                style: TextStyle(fontSize: 16, color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Age: 47",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Address: 5639 Kings Row, 73808",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   // Description label + box
                   const Text(
                     "Description:",
                     style: TextStyle(
-                      fontSize: 16, 
-                      color: Colors.white, 
+                      fontSize: 16,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Color(0xFF5DAEFF), // Slightly lighter shade for text box
-                      borderRadius: BorderRadius.circular(10),
+                      color: const Color(0xFF5DAEFF).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24, width: 1),
                     ),
                     child: const Text(
                       "Experiencing a mental health crisis. May be in distress, "
                       "exhibiting signs of emotional instability, struggling with "
                       "suicidal thoughts. A compassionate and calming approach is "
                       "advised to ensure their safety.",
-                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 15, 
+                        color: Colors.white,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
-
             // ===================
             // START VISIT CARD
             // ===================
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0B5AA6), Color(0xFF0A4A8B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Shadow color
-                    blurRadius: 6, // Blur radius
-                    offset: const Offset(0, 4), // Offset for shadow
+                    color: Colors.blue.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Column(
                 children: [
-                  const Text(
-                    "Start Visit",
-                    style: TextStyle(
-                      fontSize: 18, 
-                      color: Colors.white, 
-                      fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.play_circle_outline, color: Colors.white, size: 26),
+                      SizedBox(width: 8),
+                      Text(
+                        "Start Visit",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      "Tap to check in and start your visit",
+                      style: TextStyle(fontSize: 15, color: Colors.white),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Tap to check in and start your visit",
-                    style: TextStyle(fontSize: 14, color: Colors.white),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Start Button
                   ElevatedButton(
@@ -187,89 +300,145 @@ class _HomeScreenState extends State<HomeScreen> {
                       context.go('/checkin'); // Navigate to Check-in page
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color(0xFF4CAF50),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 30, 
-                        vertical: 12,
+                        horizontal: 40,
+                        vertical: 16,
                       ),
+                      elevation: 5,
                     ),
-                    child: const Text(
-                      "Start",
-                      style: TextStyle(
-                        fontSize: 16, 
-                        color: Colors.white, 
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.login, color: Colors.white),
+                        SizedBox(width: 10),
+                        Text(
+                          "Start",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            // ===================
-            // Device status
-            // ===================
-            const SizedBox(height: 20), // Adjust the height as needed
 
+            // ===================
+            // DEVICE STATUS
+            // ===================
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 10, 74, 139), // Updated container color
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0A4A8B), Color(0xFF0B5AA6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Shadow color
-                    blurRadius: 6, // Blur radius
-                    offset: const Offset(0, 4), // Offset for shadow
+                    color: Colors.blue.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Column(
                 children: [
-                  const Text(
-                    "Device Status",
-                    style: TextStyle(
-                      fontSize: 18, 
-                      color: Colors.white, 
-                      fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.devices, color: Colors.white, size: 26),
+                      SizedBox(width: 8),
+                      Text(
+                        "Device Status",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          connected ? Icons.wifi : Icons.wifi_off,
+                          color: connected ? Colors.green[200] : Colors.red[200],
+                          size: 28,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          connected ? "Connected" : "Disconnected",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  
-        const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              // Toggle the connected state when button is pressed
-              connected = !connected;
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: connected ? Colors.green : Colors.red,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        // Toggle the connected state when button is pressed
+                        connected = !connected;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: connected ? Colors.red : Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 15,
+                      ),
+                      elevation: 5,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          connected ? Icons.link_off : Icons.link,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          connected ? "Disconnect" : "Connect",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 30,
-              vertical: 12,
-            ),
-          ),
-          child: Text(
-            connected ? "Connected" : "Disconnected",
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  ),
           ],
         ),
       ),

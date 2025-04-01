@@ -9,17 +9,30 @@ class VisitScreen extends StatefulWidget {
   _VisitScreenState createState() => _VisitScreenState();
 }
 
-class _VisitScreenState extends State<VisitScreen> {
+class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStateMixin {
   Timer? _timer;
   Duration _remaining = const Duration(minutes: 45, seconds: 00);
-
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  
   @override
   void initState() {
     super.initState();
-    //startTimer();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.repeat(reverse: true);
   }
 
   void startTimer() {
+    // Cancel any existing timer
+    _timer?.cancel();
+    
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remaining.inSeconds > 0) {
         setState(() {
@@ -41,35 +54,43 @@ class _VisitScreenState extends State<VisitScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // White page background
-      backgroundColor: Colors.white,
-      // Gradient AppBar
+      backgroundColor: Colors.grey[50], // Slightly off-white for better contrast
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
           'Dashboard',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              colors: [Color(0xFF01284D), Color(0xFF0A4A8B)], 
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
-        elevation: 0,
+        elevation: 4, // Add shadow for depth
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Colors.white),
+            onPressed: () {
+              // Help button action
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -80,32 +101,74 @@ class _VisitScreenState extends State<VisitScreen> {
             // ===================
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 10, 74, 139), // A deep blue background
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0A4A8B), Color(0xFF0B5AA6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Current Visit',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.person_pin, color: Colors.white, size: 28),
+                      SizedBox(width: 10),
+                      Text(
+                        'Current Visit',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Recipient: Brad Miller',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Age: 47',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Row(
+                          children: [
+                            Icon(Icons.person, color: Colors.white70, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Recipient: Brad Miller',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.cake, color: Colors.white70, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Age: 47',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -120,22 +183,47 @@ class _VisitScreenState extends State<VisitScreen> {
               },
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: Text(
-                    'ARE YOU IN AN EMERGENCY?\nTap Here',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFD32F2F), Color(0xFFB71C1C)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.4),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FadeTransition(
+                      opacity: _animation,
+                      child: const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'ARE YOU IN AN EMERGENCY?\nTap Here',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -145,73 +233,104 @@ class _VisitScreenState extends State<VisitScreen> {
             // ===================
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 10, 74, 139), // Darker blue
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0B5AA6), Color(0xFF0A4A8B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Status Check',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Timer with alarm icon
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.access_alarm,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                      const SizedBox(width: 16),
+                    children: const [
+                      Icon(Icons.schedule, color: Colors.white, size: 28),
+                      SizedBox(width: 10),
                       Text(
-                        formatDuration(_remaining),
-                        style: const TextStyle(
-                          fontSize: 40,
+                        'Status Check',
+                        style: TextStyle(
+                          fontSize: 22,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  // Timer with alarm icon
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.access_alarm,
+                          color: Colors.white,
+                          size: 42,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          formatDuration(_remaining),
+                          style: const TextStyle(
+                            fontSize: 40,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   // "Check in" button
                   ElevatedButton(
                     onPressed: () {
-                      // Reset timer duration (optional)
                       setState(() {
-                      _remaining = const Duration(minutes: 45, seconds: 0);
+                        _remaining = const Duration(minutes: 45, seconds: 0);
                       });
-                      // Cancel any existing timer if it's running
-                      _timer?.cancel();
-                     // Start the timer
-                    startTimer();
+                      startTimer();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color(0xFF4CAF50),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 12,
+                        horizontal: 40,
+                        vertical: 16,
                       ),
+                      elevation: 5,
                     ),
-                    child: const Text(
-                      'Check In',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.check_circle_outline, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'Check In',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -227,21 +346,42 @@ class _VisitScreenState extends State<VisitScreen> {
               },
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: Text(
-                    'End Visit\nTap to end your visit',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF607D8B), Color(0xFF455A64)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueGrey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.exit_to_app,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'End Visit',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

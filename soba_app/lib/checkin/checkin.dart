@@ -76,35 +76,35 @@ class _SelfiePageState extends State<SelfiePage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        Expanded(
-          child: Stack(
-            children: [
-              CameraPreview(_controller!),
-              Positioned(
-                bottom: 30,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: _takePicture,
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: const BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ),
+        Transform.scale(
+          scale: 1 / (_controller!.value.aspectRatio * MediaQuery.of(context).size.aspectRatio),
+          child: Center(
+            child: CameraPreview(_controller!),
+          ),
+        ),
+        Positioned(
+          bottom: 30,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: GestureDetector(
+              onTap: _takePicture,
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 30,
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],

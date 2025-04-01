@@ -73,7 +73,12 @@ class _VehiclePhotoScreenState extends State<VehiclePhotoScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          CameraPreview(_controller!),
+          Transform.scale(
+            scale: 1 / (_controller!.value.aspectRatio * MediaQuery.of(context).size.aspectRatio),
+            child: Center(
+              child: CameraPreview(_controller!),
+            ),
+          ),
           Positioned(
             bottom: 30,
             left: 0,

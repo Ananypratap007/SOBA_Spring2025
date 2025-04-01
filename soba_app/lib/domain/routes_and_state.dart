@@ -88,7 +88,6 @@ final GoRouter router = GoRouter(
     return null;
   },
 );
-
 /*
           path: '/profile',
           builder: (BuildContext context, GoRouterState state) {
@@ -122,3 +121,4 @@ final GoRouter router = GoRouter(
   redirect: (state, goRouterState) => !_isLoggedIn ? '/login' : null,
 );
 */
+
