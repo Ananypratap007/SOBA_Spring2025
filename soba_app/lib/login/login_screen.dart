@@ -69,7 +69,10 @@ class _LoginPageState extends State<LoginPage> {
       // Update last login timestamp in Firestore
       final user = FirebaseConfig.auth.currentUser;
       if (user != null) {
-        await FirebaseConfig.firestore.collection('users').doc(user.uid).update({
+        await FirebaseConfig.firestore
+            .collection('users')
+            .doc(user.uid)
+            .update({
           'lastLogin': FieldValue.serverTimestamp(),
           'rememberMe': _isRememberMeOn, // Store the remember me preference
         });
@@ -114,20 +117,37 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade200, Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        decoration: BoxDecoration(color: Color(0XFF4CAF93)),
+        child: Column(children: [
+          Expanded(
+            child: Center(
+              child: Text(
+                'Welcome to Back',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      color: Colors.black54,
+                      offset: Offset(1, 1),
+                    )
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
+          Container(
+            width: double.infinity,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: Color(0xFF003366),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black26,
@@ -144,12 +164,12 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   // Welcome Text
                   Text(
-                    'Welcome to Universal Safety!',
+                    'Sign In',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade300,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -160,24 +180,51 @@ class _LoginPageState extends State<LoginPage> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email',
+                      filled: true,
+                      fillColor: Colors.white,
+                      isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.blue.shade300),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-
+                  SizedBox(height: 12),
                   // Password TextField
                   TextField(
                     controller: _passwordController,
                     obscureText: _isPasswordObscured,
                     decoration: InputDecoration(
                       labelText: 'Password',
+                      filled: true,
+                      fillColor: Colors.white,
+                      isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide:
+                            BorderSide(color: Colors.blue.shade300, width: 2),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(_isPasswordObscured ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(
+                          _isPasswordObscured
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey.shade600,
+                        ),
                         onPressed: () {
                           setState(() {
                             _isPasswordObscured = !_isPasswordObscured;
@@ -186,18 +233,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-
-                 
+                  const SizedBox(height: 25),
 
                   // Login Button
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade300,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Color(0XFF4CAF93),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: _isLoading
@@ -206,12 +251,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
                             'Login',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 22, color: Colors.white),
                           ),
                   ),
                   const SizedBox(height: 16),
@@ -224,14 +270,16 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           print('Google Login');
                         },
-                        icon: const FaIcon(FontAwesomeIcons.google, color: Colors.red, size: 30),
+                        icon: const FaIcon(FontAwesomeIcons.google,
+                            color: Colors.red, size: 30),
                       ),
                       const SizedBox(width: 20),
                       IconButton(
                         onPressed: () {
                           print('Apple Login');
                         },
-                        icon: const FaIcon(FontAwesomeIcons.apple, color: Colors.black, size: 30),
+                        icon: const FaIcon(FontAwesomeIcons.apple,
+                            color: Colors.black, size: 30),
                       ),
                     ],
                   ),
@@ -249,7 +297,8 @@ class _LoginPageState extends State<LoginPage> {
                               // Show success message
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Account created successfully! Please log in.'),
+                                  content: Text(
+                                      'Account created successfully! Please log in.'),
                                 ),
                               );
                             },
@@ -259,7 +308,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text(
                       "Don't have an account? Sign up here",
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                   TextButton(
@@ -268,7 +317,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text(
                       "Forgot your password? Reset it here",
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
 
@@ -277,13 +326,13 @@ class _LoginPageState extends State<LoginPage> {
                   const Text(
                     "Need help? Call the 988 Hotline anytime.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Color(0XFF4CAF93)),
                   ),
                 ],
               ),
             ),
           ),
-        ),
+        ]),
       ),
     );
   }

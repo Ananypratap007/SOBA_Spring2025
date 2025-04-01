@@ -6,6 +6,8 @@ import 'package:soba_app/domain/profile_model.dart';
 import 'package:soba_app/home/home_screen.dart';
 import 'package:soba_app/home/visit_screen.dart';
 import 'package:soba_app/login/login_screen.dart';
+import 'package:soba_app/login/signup_screen.dart';
+import 'package:soba_app/login/complete_signup_screen.dart';
 import 'package:soba_app/map/map_screen.dart';
 import 'package:soba_app/profile/profile_presenter.dart';
 import 'package:soba_app/profile/profile_screen.dart';
@@ -20,6 +22,11 @@ final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: <RouteBase>[
     GoRoute(
+      path: '/',
+      builder: (BuildContext context, GoRouterState state) =>
+          PageWithBottomNav(child: HomeScreen()),
+    ),
+    GoRoute(
       path: '/login',
       builder: (BuildContext context, GoRouterState state) {
         return LoginPage(
@@ -30,24 +37,33 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/visit',
+      path: '/signup',
       builder: (BuildContext context, GoRouterState state) {
-        return PageWithBottomNav(
-          child: VisitScreen(),
+        return SignUpPage(
+          // If sign-up succeeds, we want to go to /complete-signup
+          onSignUpComplete: () {
+            context.go('/complete-signup');
+          },
         );
       },
     ),
     GoRoute(
-      path: '/',
-      builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
-        child: HomeScreen(),
-      ),
+      path: '/complete-signup',
+      builder: (BuildContext context, GoRouterState state) {
+        return const CompleteSignupScreen();
+      },
+    ),
+    GoRoute(
+      path: '/visit',
+      builder: (BuildContext context, GoRouterState state) {
+        return PageWithBottomNav(child: VisitScreen());
+      },
     ),
     GoRoute(
       path: '/map',
-      builder: (BuildContext context, GoRouterState state) => PageWithBottomNav(
-        child: MapScreen(),
-      ),
+      builder: (BuildContext context, GoRouterState state) {
+        return PageWithBottomNav(child: MapScreen());
+      },
     ),
     GoRoute(
       path: '/profile',
@@ -66,59 +82,23 @@ final GoRouter router = GoRouter(
       },
     ),
   ],
-  
-  // Handle authentication state and redirect accordingly
   redirect: (context, state) {
-    // Get the current user
     final user = FirebaseAuth.instance.currentUser;
-    
-    // Check if we're on the login page
-    final isLoginRoute = state.matchedLocation == '/login';
-    
-    // If there's no user and we're not on the login page, redirect to login
-    if (user == null && !isLoginRoute) {
+    final location = state.matchedLocation;
+
+    final isLoginRoute = (location == '/login');
+    final isSignupRoute = (location == '/signup');
+    final isCompleteSignupRoute = (location == '/complete-signup');
+
+    // If user is NOT logged in, redirect to /login (unless they're on signup or complete-signup)
+    if (user == null &&
+        !isLoginRoute &&
+        !isSignupRoute &&
+        !isCompleteSignupRoute) {
       return '/login';
     }
-    
-    // If there is a user and we're on the login page, redirect to home
-    if (user != null && isLoginRoute) {
-      return '/';
-    }
-    
+
+    // No forced redirect for logged-in user
     return null;
   },
 );
-/*
-          path: '/profile',
-          builder: (BuildContext context, GoRouterState state) {
-            return PageWithBottomNav(
-              child: ProfileScreen(),
-            );
-          },
-        ),
-        GoRoute(
-          path: 'checkin',
-          builder: (BuildContext context, GoRouterState state) {
-            return CheckinScreen();
-          },
-        ),
-        GoRoute(
-          path: 'login',
-          builder: (BuildContext context, GoRouterState state) {
-            return LoginPage(
-              onSuccessfulLogin: () {
-                _isLoggedIn = true;
-                context.go('/');
-              },
-            );
-          },
-        ),
-      ],
-    ),
-  ],
-  // This is where we will handle the login - check if the user is logged in
-  // and redirect if not.
-  redirect: (state, goRouterState) => !_isLoggedIn ? '/login' : null,
-);
-*/
-

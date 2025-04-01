@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:soba_app/firebase_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:soba_app/login/complete_signup_screen.dart';
 import 'package:soba_app/login/terms.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -64,7 +65,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if (_passwordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 6 characters long')),
+        const SnackBar(
+            content: Text('Password must be at least 6 characters long')),
       );
       return;
     }
@@ -75,24 +77,50 @@ class _SignUpPageState extends State<SignUpPage> {
 
     try {
       // Create user with email and password
-      final userCredential = await FirebaseConfig.auth.createUserWithEmailAndPassword(
+      final userCredential =
+          await FirebaseConfig.auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
       // Store additional user data in Firestore
-      await FirebaseConfig.firestore.collection('users').doc(userCredential.user!.uid).set({
-        'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'username': _usernameController.text.trim(),
+      await FirebaseConfig.firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'name': _nameController.text.trim().toLowerCase(),
+        'phone': _phoneController.text.trim().toLowerCase(),
+        'username': _usernameController.text.trim().toLowerCase(),
         'email': _emailController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': FieldValue.serverTimestamp(),
+        'profileCompleted': false,
       });
 
       if (mounted) {
         // Call the completion callback
-        widget.onSignUpComplete?.call();
+        // widget.onSignUpComplete?.call();
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return const CompleteSignupScreen();
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              // Slide from right to left
+              const begin = Offset(1.0, 0.0); // 1.0 = all the way to the right
+              const end = Offset.zero; // 0.0 = current position
+              final tween = Tween(begin: begin, end: end);
+              final offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          ),
+        );
       }
     } on FirebaseAuthException catch (e) {
       String message = 'An error occurred during sign up';
@@ -103,7 +131,8 @@ class _SignUpPageState extends State<SignUpPage> {
       } else if (e.code == 'invalid-email') {
         message = 'The email address is invalid.';
       } else if (e.code == 'operation-not-allowed') {
-        message = 'Email/password accounts are not enabled. Please contact support.';
+        message =
+            'Email/password accounts are not enabled. Please contact support.';
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -131,19 +160,45 @@ class _SignUpPageState extends State<SignUpPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade200, Colors.white],
+            colors: [Color(0XFF4CAF93), Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 45,
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Welcome to Universal Safety',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 4,
+                        color: Colors.black54,
+                        offset: Offset(1, 1),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: double.infinity, //MediaQuery.of(context).size.width * 0.9,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+              ),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: Color(0xFF003366),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
@@ -153,207 +208,250 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Welcome Text
-                  Text(
-                    'Create Your Account',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade300,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Welcome Text
+                    SizedBox(
+                      height: 2,
                     ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Name TextField
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    Text(
+                      'Create Your Account',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                  // Phone Number TextField
-                  TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixText: '+1 ',
+                    // Name TextField
+                    SmartTextField(
+                      label: 'Full Name',
+                      controller: _nameController,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Username TextField
-                  TextField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    // Phone Number TextField
+                    SmartTextField(
+                      label: 'Phone Number',
+                      controller: _phoneController,
                     ),
-                  ),
-                  const SizedBox(height: 16),
 
-                  // Email TextField
-                  TextField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    // Username TextField
+                    SmartTextField(
+                      label: 'Username',
+                      controller: _usernameController,
                     ),
-                  ),
-                  const SizedBox(height: 16),
 
-                  // Password TextField
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    // Email TextField
+                    SmartTextField(
+                      label: 'Email address',
+                      controller: _emailController,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Confirm Password TextField
-                  TextField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    // Password TextField
+                    SmartTextField(
+                      label: 'Password',
+                      controller: _passwordController,
                     ),
-                  ),
-                  const SizedBox(height: 16),
 
-                  // Terms and Conditions Checkbox
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _isTermsAccepted,
-                        onChanged: (value) {
-                          setState(() {
-                            _isTermsAccepted = value!;
-                          });
-                        },
-                      ),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'I accept the ',
-                            style: TextStyle(color: Colors.grey.shade700),
-                            children: [
-                              TextSpan(
-                                text: 'Terms and Conditions',
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
+                    // Confirm Password TextField
+                    SmartTextField(
+                      label: 'Confirm Password',
+                      controller: _confirmPasswordController,
+                    ),
+
+                    // Terms and Conditions Checkbox
+                    Row(
+                      children: [
+                        Checkbox(
+                          activeColor: Colors.white,
+                          value: _isTermsAccepted,
+                          onChanged: (value) {
+                            setState(() {
+                              _isTermsAccepted = value!;
+                            });
+                          },
+                        ),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              text: 'I accept the ',
+                              style: TextStyle(color: Colors.white),
+                              children: [
+                                TextSpan(
+                                  text: 'Terms and Conditions',
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const TermsAndConditionsPage(),
+                                        ),
+                                      );
+                                    },
                                 ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const TermsAndConditionsPage(),
-                                      ),
-                                    );
-                                  },
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Sign Up Button
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleSignUp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade300,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      ],
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    const SizedBox(height: 5),
+
+                    // Sign Up Button
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _handleSignUp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0XFF4CAF93),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Sign Up',
+                              style:
+                                  TextStyle(fontSize: 24, color: Colors.white),
                             ),
-                          )
-                        : const Text(
-                            'Sign Up',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Social Sign Up Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          print('Google Sign Up');
-                        },
-                        icon: const FaIcon(FontAwesomeIcons.google, color: Colors.red, size: 30),
-                      ),
-                      const SizedBox(width: 20),
-                      IconButton(
-                        onPressed: () {
-                          print('Apple Sign Up');
-                        },
-                        icon: const FaIcon(FontAwesomeIcons.apple, color: Colors.black, size: 30),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Login Link
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "Already have an account? Login here",
-                      style: TextStyle(color: Colors.blue),
                     ),
-                  ),
+                    const SizedBox(height: 8),
 
-                  // Help Text
-                  const SizedBox(height: 10),
-                  
-                ],
+                    // Social Sign Up Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            print('Google Sign Up');
+                          },
+                          icon: const FaIcon(FontAwesomeIcons.google,
+                              color: Colors.red, size: 32),
+                        ),
+                        const SizedBox(width: 20),
+                        IconButton(
+                          onPressed: () {
+                            print('Apple Sign Up');
+                          },
+                          icon: const FaIcon(FontAwesomeIcons.apple,
+                              color: Colors.white, size: 37),
+                        ),
+                      ],
+                    ),
+
+                    // Login Link
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Already have an account? Login here",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+
+                    // Help Text
+                    const SizedBox(height: 12),
+                  ],
+                ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SmartTextField extends StatefulWidget {
+  final String label;
+  final TextEditingController controller;
+
+  const SmartTextField({
+    required this.label,
+    required this.controller,
+  });
+
+  @override
+  _SmartTextFieldState createState() => _SmartTextFieldState();
+}
+
+class _SmartTextFieldState extends State<SmartTextField> {
+  late FocusNode _focusNode;
+  bool _showLabel = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      setState(() {
+        // Hide label when focused, show when unfocused AND empty
+        _showLabel = !_focusNode.hasFocus && widget.controller.text.isEmpty;
+      });
+    });
+
+    // Add listener for text changes
+    widget.controller.addListener(_handleTextChange);
+  }
+
+  void _handleTextChange() {
+    setState(() {
+      // Update label visibility when text changes
+      _showLabel = !_focusNode.hasFocus && widget.controller.text.isEmpty;
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    widget.controller.removeListener(_handleTextChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: widget.controller,
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            labelText: _showLabel ? widget.label : null,
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+            filled: true,
+            fillColor: Colors.white,
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.blue.shade300),
             ),
           ),
         ),
-      ),
+        SizedBox(height: 10),
+      ],
     );
   }
 }

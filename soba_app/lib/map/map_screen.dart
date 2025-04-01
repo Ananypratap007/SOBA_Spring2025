@@ -12,7 +12,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   // Default center coordinates (you can change these to your desired location)
   static const LatLng _defaultLocation = LatLng(35.2043, -97.4453);
-  
+
   // Map controller
   final MapController _mapController = MapController();
 
@@ -38,7 +38,10 @@ class _MapScreenState extends State<MapScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color.fromARGB(255, 1, 40, 65), Color.fromARGB(255, 10, 74, 139)], // Gradient colors
+              colors: [
+                Color.fromARGB(255, 1, 40, 65),
+                Color.fromARGB(255, 10, 74, 139)
+              ], // Gradient colors
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -58,7 +61,8 @@ class _MapScreenState extends State<MapScreen> {
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: const ['a', 'b', 'c'],
             userAgentPackageName: 'com.soba.app',
-            errorImage: const NetworkImage('https://tile.openstreetmap.org/0/0/0.png'),
+            errorImage:
+                const NetworkImage('https://tile.openstreetmap.org/0/0/0.png'),
           ),
           MarkerLayer(
             markers: [
@@ -68,9 +72,8 @@ class _MapScreenState extends State<MapScreen> {
                   Icons.location_pin,
                   color: Colors.red,
                   size: 40,
-            ),
-            ),
-
+                ),
+              ),
             ],
           ),
         ],

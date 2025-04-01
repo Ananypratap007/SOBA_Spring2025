@@ -8,7 +8,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   bool connected = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -37,7 +38,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       // Page background
-      backgroundColor: Colors.grey[50], // Slightly off-white for better contrast
+      backgroundColor:
+          Colors.grey[50], // Slightly off-white for better contrast
 
       // Gradient AppBar
       appBar: AppBar(
@@ -107,7 +109,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     children: [
                       Row(
                         children: const [
-                          Icon(Icons.work_outline, color: Colors.white, size: 22),
+                          Icon(Icons.work_outline,
+                              color: Colors.white, size: 22),
                           SizedBox(width: 8),
                           Text(
                             "Upcoming Job",
@@ -120,7 +123,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.red.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
@@ -168,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             Expanded(
                               child: Text(
                                 "Recipient: Brad Miller",
-                                style: TextStyle(fontSize: 16, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                               ),
                             ),
                           ],
@@ -181,7 +186,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             Expanded(
                               child: Text(
                                 "Age: 47",
-                                style: TextStyle(fontSize: 16, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                               ),
                             ),
                           ],
@@ -189,12 +195,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.location_on, color: Colors.white70, size: 18),
+                            Icon(Icons.location_on,
+                                color: Colors.white70, size: 18),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 "Address: 5639 Kings Row, 73808",
-                                style: TextStyle(fontSize: 16, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -229,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       "suicidal thoughts. A compassionate and calming approach is "
                       "advised to ensure their safety.",
                       style: TextStyle(
-                        fontSize: 15, 
+                        fontSize: 15,
                         color: Colors.white,
                         height: 1.4,
                       ),
@@ -267,7 +275,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.play_circle_outline, color: Colors.white, size: 26),
+                      Icon(Icons.play_circle_outline,
+                          color: Colors.white, size: 26),
                       SizedBox(width: 8),
                       Text(
                         "Start Visit",
@@ -281,7 +290,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -382,7 +392,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       children: [
                         Icon(
                           connected ? Icons.wifi : Icons.wifi_off,
-                          color: connected ? Colors.green[200] : Colors.red[200],
+                          color:
+                              connected ? Colors.green[200] : Colors.red[200],
                           size: 28,
                         ),
                         const SizedBox(width: 12),
@@ -398,7 +409,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   const SizedBox(height: 12),
-
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
