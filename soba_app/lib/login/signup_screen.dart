@@ -156,223 +156,261 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    final screenSize = MediaQuery.of(context).size;
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0XFF4CAF93), Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 45,
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'Welcome to Universal Safety',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 4,
-                        color: Colors.black54,
-                        offset: Offset(1, 1),
-                      )
-                    ],
-                  ),
-                ),
+      // Use resizeToAvoidBottomInset to handle keyboard properly
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: GestureDetector(
+          // Close keyboard when tapping outside text fields
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Container(
+            height: screenSize.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0XFF4CAF93), Colors.white],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            Container(
-              width: double.infinity, //MediaQuery.of(context).size.width * 0.9,
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8,
-              ),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Color(0xFF003366),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 4),
+            child: Column(
+              children: [
+                // Hide this when keyboard is showing to give more space
+                if (!keyboardVisible) ...[
+                  SizedBox(height: 20),
+                  Text(
+                    'Welcome to Universal Safety',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: keyboardVisible ? 24 : 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 4,
+                          color: Colors.black54,
+                          offset: Offset(1, 1),
+                        )
+                      ],
+                    ),
                   ),
+                  SizedBox(height: 10),
                 ],
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Welcome Text
-                    SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      'Create Your Account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Name TextField
-                    SmartTextField(
-                      label: 'Full Name',
-                      controller: _nameController,
-                    ),
-                    // Phone Number TextField
-                    SmartTextField(
-                      label: 'Phone Number',
-                      controller: _phoneController,
-                    ),
-
-                    // Username TextField
-                    SmartTextField(
-                      label: 'Username',
-                      controller: _usernameController,
-                    ),
-
-                    // Email TextField
-                    SmartTextField(
-                      label: 'Email address',
-                      controller: _emailController,
-                    ),
-                    // Password TextField
-                    SmartTextField(
-                      label: 'Password',
-                      controller: _passwordController,
-                    ),
-
-                    // Confirm Password TextField
-                    SmartTextField(
-                      label: 'Confirm Password',
-                      controller: _confirmPasswordController,
-                    ),
-
-                    // Terms and Conditions Checkbox
-                    Row(
-                      children: [
-                        Checkbox(
-                          activeColor: Colors.white,
-                          value: _isTermsAccepted,
-                          onChanged: (value) {
-                            setState(() {
-                              _isTermsAccepted = value!;
-                            });
-                          },
+                
+                // Using Expanded to take available space
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF003366),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(keyboardVisible ? 30 : 65)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
                         ),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'I accept the ',
-                              style: TextStyle(color: Colors.white),
-                              children: [
-                                TextSpan(
-                                  text: 'Terms and Conditions',
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TermsAndConditionsPage(),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(keyboardVisible ? 30 : 65)),
+                      child: ListView(
+                        padding: const EdgeInsets.all(14),
+                        children: [
+                          // Adjust spacing based on keyboard visibility
+                          SizedBox(height: keyboardVisible ? 5 : 10),
+                          
+                          Text(
+                            'Create Your Account',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: keyboardVisible ? 20 : 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Name TextField
+                          SmartTextField(
+                            label: 'Full Name',
+                            controller: _nameController,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          // Phone Number TextField
+                          SmartTextField(
+                            label: 'Phone Number',
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            textInputAction: TextInputAction.next,
+                          ),
+
+                          // Username TextField
+                          SmartTextField(
+                            label: 'Username',
+                            controller: _usernameController,
+                            textInputAction: TextInputAction.next,
+                          ),
+
+                          // Email TextField
+                          SmartTextField(
+                            label: 'Email address',
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          // Password TextField
+                          SmartTextField(
+                            label: 'Password',
+                            controller: _passwordController,
+                            obscureText: true,
+                            textInputAction: TextInputAction.next,
+                          ),
+
+                          // Confirm Password TextField
+                          SmartTextField(
+                            label: 'Confirm Password',
+                            controller: _confirmPasswordController,
+                            obscureText: true,
+                            textInputAction: TextInputAction.done,
+                          ),
+
+                          // Terms and Conditions Checkbox with compact layout
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Transform.scale(
+                                scale: 0.9,
+                                child: Checkbox(
+                                  activeColor: Colors.white,
+                                  value: _isTermsAccepted,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isTermsAccepted = value!;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: 'I accept the ',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: keyboardVisible ? 12 : 14,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: 'Terms and Conditions',
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          decoration: TextDecoration.underline,
+                                          fontSize: keyboardVisible ? 12 : 14,
                                         ),
-                                      );
-                                    },
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const TermsAndConditionsPage(),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: keyboardVisible ? 5 : 10),
+
+                          // Sign Up Button
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _handleSignUp,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0XFF4CAF93),
+                              padding: EdgeInsets.symmetric(
+                                vertical: keyboardVisible ? 6 : 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                      fontSize: keyboardVisible ? 18 : 24,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+
+                          // Only show these when keyboard is hidden to save space
+                          if (!keyboardVisible) ...[
+                            const SizedBox(height: 8),
+                            // Social Sign Up Buttons
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    print('Google Sign Up');
+                                  },
+                                  icon: const FaIcon(FontAwesomeIcons.google,
+                                      color: Colors.red, size: 28),
+                                ),
+                                const SizedBox(width: 20),
+                                IconButton(
+                                  onPressed: () {
+                                    print('Apple Sign Up');
+                                  },
+                                  icon: const FaIcon(FontAwesomeIcons.apple,
+                                      color: Colors.white, size: 32),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
+                          ],
 
-                    // Sign Up Button
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _handleSignUp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0XFF4CAF93),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                          // Login Link - always show this
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Already have an account? Login here",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: keyboardVisible ? 13 : 14,
                               ),
-                            )
-                          : const Text(
-                              'Sign Up',
-                              style:
-                                  TextStyle(fontSize: 24, color: Colors.white),
                             ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Social Sign Up Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            print('Google Sign Up');
-                          },
-                          icon: const FaIcon(FontAwesomeIcons.google,
-                              color: Colors.red, size: 32),
-                        ),
-                        const SizedBox(width: 20),
-                        IconButton(
-                          onPressed: () {
-                            print('Apple Sign Up');
-                          },
-                          icon: const FaIcon(FontAwesomeIcons.apple,
-                              color: Colors.white, size: 37),
-                        ),
-                      ],
-                    ),
-
-                    // Login Link
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Already have an account? Login here",
-                        style: TextStyle(color: Colors.blue),
+                          ),
+                          
+                          // Add extra padding at the bottom to ensure fields aren't hidden by keyboard
+                          SizedBox(height: keyboardVisible ? MediaQuery.of(context).viewInsets.bottom * 0.1 : 0),
+                        ],
                       ),
                     ),
-
-                    // Help Text
-                    const SizedBox(height: 12),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -382,10 +420,20 @@ class _SignUpPageState extends State<SignUpPage> {
 class SmartTextField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
+  final bool obscureText;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final int? maxLines;
+  final int? maxLength;
 
   const SmartTextField({
     required this.label,
     required this.controller,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.next,
+    this.maxLines = 1,
+    this.maxLength,
   });
 
   @override
@@ -427,31 +475,40 @@ class _SmartTextFieldState extends State<SmartTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: widget.controller,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            labelText: _showLabel ? widget.label : null,
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            filled: true,
-            fillColor: Colors.white,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.blue.shade300),
-            ),
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    
+    return Padding(
+      padding: EdgeInsets.only(bottom: isKeyboardVisible ? 6 : 10),
+      child: TextField(
+        controller: widget.controller,
+        focusNode: _focusNode,
+        obscureText: widget.obscureText,
+        keyboardType: widget.keyboardType,
+        textInputAction: widget.textInputAction,
+        maxLines: widget.maxLines,
+        maxLength: widget.maxLength,
+        style: TextStyle(fontSize: isKeyboardVisible ? 14 : 16),
+        decoration: InputDecoration(
+          labelText: _showLabel ? widget.label : null,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          filled: true,
+          fillColor: Colors.white,
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(
+            vertical: isKeyboardVisible ? 10 : 12, 
+            horizontal: 16
           ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.blue.shade300),
+          ),
+          counterText: '',
+          errorMaxLines: 2,
         ),
-        SizedBox(height: 10),
-      ],
+      ),
     );
   }
 }
