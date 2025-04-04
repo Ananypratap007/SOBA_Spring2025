@@ -1,0 +1,62 @@
+name: soba_app
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.1
+
+flavorizr:
+  flavors:
+    user:
+      app:
+        name: "User App"
+      android:
+        applicationId: "com.example.user"
+      ios:
+        bundleId: "com.example.soba_app"
+    org:
+      app:
+        name: "Organization App"
+      android:
+        applicationId: "com.example.soba_app"
+      ios:
+        bundleId: "com.example.org"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  font_awesome_flutter: ^10.8.0
+  go_router: ^14.8.0
+  duration_picker: "^1.0.0"
+  hive_flutter: ^1.1.0
+  hive: ^2.2.3
+  path_provider: ^2.1.1
+  sliding_up_panel: ^2.0.0+1
+  firebase_core: ^3.12.1
+  cloud_firestore: ^5.6.5
+  firebase_auth: ^5.5.1
+  uuid: ^4.5.1
+  firebase_storage: ^12.4.5
+  image_picker: ^1.1.2
+  image: ^4.5.4
+  local_auth: ^2.3.0
+  local_auth_android: ^1.0.48
+  local_auth_ios: ^1.1.7
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^9.2.4
+  latlong2: ^0.9.1
+  flutter_map: ^8.1.1
+  flutter_map_animations: ^0.9.0
+  camera: ^0.11.1
+  flutter_flavorizr: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/maps_placeholder.png

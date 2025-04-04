@@ -1,0 +1,54 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+// Top-level build.gradle (android/build.gradle)
+buildscript {
+    ext.kotlin_version = '1.9.20'  // Your desired Kotlin version
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Gradle plugin for building Android apps
+        classpath 'com.android.tools.build:gradle:8.1.3'
+        // Kotlin Gradle plugin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // Google services plugin (for Firebase, etc.)
+        classpath 'com.google.gms:google-services:4.4.0'
+    }
+}
+
+// For all sub-projects/modules
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// (Optional) Customize the output build directories
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(":app")
+}
+
+// (Optional) Custom 'clean' task
+// tasks.register("clean", Delete) {
+//     delete rootProject.buildDir
+// }

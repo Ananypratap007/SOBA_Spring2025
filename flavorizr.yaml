@@ -1,0 +1,32 @@
+app:
+  android:
+    flavorDimensions: "flavor"
+    flavors:
+      org:
+        applicationId: "com.example.org"
+        icon: "assets/icons/org"
+      user:
+        applicationId: "com.example.user"
+        icon: "assets/icons/user"
+  ios:
+    flavors:
+      org:
+        bundleId: "com.example.org"
+      user:
+        bundleId: "com.example.user"
+
+flavors:
+  org:
+    app:
+      name: "SOBA Org"
+    android:
+      applicationId: "com.example.org"
+    ios:
+      bundleId: "com.example.org"
+  user:
+    app:
+      name: "SOBA User"
+    android:
+      applicationId: "com.example.user"
+    ios:
+      bundleId: "com.example.user"

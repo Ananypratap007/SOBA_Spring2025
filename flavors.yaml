@@ -1,0 +1,15 @@
+flavors:
+  user:
+    app:
+      name: "User App"
+    android:
+      applicationId: "com.example.user"
+    ios:
+      bundleId: "com.example.org"
+  org:
+    app:
+      name: "Organization App"
+    android:
+      applicationId: "com.example.org"
+    ios:
+      bundleId: "com.example.org"
