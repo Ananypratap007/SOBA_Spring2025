@@ -320,6 +320,30 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "geocoding",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/geocoding-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "geocoding_android",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/geocoding_android-3.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "geocoding_ios",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/geocoding_ios-3.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "geocoding_platform_interface",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/geocoding_platform_interface-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "go_router",
       "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/go_router-14.8.0",
       "packageUri": "lib/",
@@ -794,7 +818,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-04T15:19:29.619789Z",
+  "generated": "2025-04-04T16:33:34.416476Z",
   "generator": "pub",
   "generatorVersion": "3.6.1",
   "flutterRoot": "file:///C:/flutter",

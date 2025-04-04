@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
+
+const double dfInsets = 20;
+const double dfRadius = 20;
+const Color blue = Color(0xff003366);
+const Color teal = Color(0xff03DAA2);
+
+final MapController _mapController = MapController();
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,86 +33,55 @@ class TilesPage extends StatefulWidget {
 }
 
 class _TilesPageState extends State<TilesPage> {
-  int _currentIndex = 1;
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
 
-  void _onNavigationTapped(int index) {
-    setState(() => _currentIndex = index);
-    switch (index) {
-      case 0:
-        context.go('/');
-        break;
-      case 1:
-        break;
-      case 2:
-        context.go('/profile');
-        break;
-    }
-  }
+  static const LatLng _dfLocation = LatLng(35.2043, -97.4453);
+  static const double _dfZoom = 9.0;
 
   final List<Responder> responders = [
     Responder(
-      name: 'Jack Furman',
-      location: 'Norman, OK',
-      assignedTo: 'Jane Doe',
-      date: 'March 3, 2025',
-      time: 'Today, 4:45 PM',
+      name: 'Helena Furman',
+      lat: 35.138056,
+      lng: -97.369444,
+      loc: "Noble, OK",
       status: 'En Route',
       image:
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://plus.unsplash.com/premium_photo-1689551670902-19b441a6afde?w=500&auto=format&fit=crop&q=60',
     ),
     Responder(
-      name: 'Holden Moore',
-      location: 'OK City, OK',
-      assignedTo: 'Amanda Key',
-      date: 'March 3, 2025',
-      time: 'Today, 5:37 PM',
+      name: 'Jack Moore',
+      lat: 35.4689,
+      lng: -97.5195,
+      loc: "Oklahoma City, OK",
       status: 'On Site',
       image:
-          'https://plus.unsplash.com/premium_photo-1671656349322-41de944d259b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop',
     ),
     Responder(
-      name: 'Elle Smith',
-      location: 'Noble, OK',
-      assignedTo: 'Patrick DeVoe',
-      date: 'March 3, 2025',
-      time: 'Today, 6:30 PM',
+      name: 'Linda Smith',
+      lat: 35.0137,
+      lng: -97.3611,
+      loc: "Purcell, OK",
       status: 'Returning',
       image:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    ),
-    Responder(
-      name: 'Alex Johnson',
-      location: 'Tulsa, OK',
-      assignedTo: 'Sarah Miller',
-      date: 'March 3, 2025',
-      time: 'Today, 7:15 PM',
-      status: 'Available',
-      image:
-          'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
-    ),
-    Responder(
-      name: 'Maria Garcia',
-      location: 'Lawton, OK',
-      assignedTo: 'David Wilson',
-      date: 'March 3, 2025',
-      time: 'Today, 8:00 PM',
-      status: 'On Break',
-      image:
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D',
+          'https://images.unsplash.com/photo-1742504886132-dbdc985233b1?w=500&auto=format&fit=crop&q=60',
     ),
   ];
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue[900],
+        selectedItemColor: blue,
         unselectedItemColor: Colors.grey,
-        onTap: _onNavigationTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
@@ -114,127 +90,130 @@ class _TilesPageState extends State<TilesPage> {
       ),
       body: Stack(
         children: [
-          // Main content
           Column(
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.fromLTRB(8.0, 52.0, 8.0, 8.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue[900],
-                ),
+                padding: const EdgeInsets.fromLTRB(
+                    dfInsets, 2.5 * dfInsets, dfInsets, dfInsets),
+                color: blue,
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back,
-                          color: Colors.white, size: 30),
-                      onPressed: () {},
+                    FloatingActionButton(
+                      onPressed: () {
+                        _mapController.move(_dfLocation, _dfZoom);
+                      },
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.my_location, color: blue),
                     ),
                     const Spacer(),
-                    _SearchBar(const Color.fromARGB(255, 245, 245, 245)),
+                    _SearchBar(blue),
                   ],
                 ),
               ),
               Expanded(
-                child: Image.asset(
-                  'assets/maps_placeholder.png',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _dfLocation,
+                    initialZoom: _dfZoom,
+                    maxZoom: 18.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: const ['a', 'b', 'c'],
+                      userAgentPackageName: 'com.soba.app',
+                    ),
+                    MarkerLayer(
+                      markers: responders
+                          .map((responder) => Marker(
+                                point: LatLng(responder.lat, responder.lng),
+                                width: 50,
+                                height: 50,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    String locationName = responder.loc;
+                                    try {
+                                      List<Placemark> placemarks =
+                                          await placemarkFromCoordinates(
+                                        responder.lat,
+                                        responder.lng,
+                                      );
+                                      if (placemarks.isNotEmpty) {
+                                        Placemark place = placemarks.first;
+                                        locationName =
+                                            "${place.locality}, ${place.administrativeArea}";
+                                      }
+                                    } catch (_) {}
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text(responder.name),
+                                        content: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text("Status: ${responder.status}"),
+                                            Text(
+                                                "Location: $locationName \n${responder.lat}, ${responder.lng}"),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text("Close"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  child: CircleAvatar(
+                                    radius: dfRadius / 1.15,
+                                    backgroundImage:
+                                        NetworkImage(responder.image),
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-
-          // Draggable sheet
-          Positioned.fill(
-            child: NotificationListener<DraggableScrollableNotification>(
-              onNotification: (notification) {
-                // You can handle scroll/extent changes here if needed
-                return true;
-              },
-              child: DraggableScrollableSheet(
-                controller: _sheetController,
-                initialChildSize: 0.2, // Initial size (20% of screen)
-                minChildSize: 0.2, // Minimum size (20% of screen)
-                maxChildSize: 0.7, // Maximum size (70% of screen)
-                snap: true, // Enable snapping
-                snapSizes: const [0.2, 0.4, 0.7], // Snap points
-                builder: (context, scrollController) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(50)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          spreadRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Handle bar
-                        Container(
-                          height: 40,
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: 40,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[400],
-                              borderRadius: BorderRadius.circular(2.5),
-                            ),
-                          ),
-                        ),
-
-                        // Title
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Responders',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                '${responders.length} Active',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // List of responders
-                        Expanded(
-                          child: ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.all(8.0),
-                            itemCount: responders.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4.0),
-                                child:
-                                    ResponderTile(responder: responders[index]),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
+          DraggableScrollableSheet(
+            controller: _sheetController,
+            initialChildSize: 0.2,
+            minChildSize: 0.2,
+            maxChildSize: 0.7,
+            snap: true,
+            snapSizes: const [0.2, 0.4, 0.7],
+            builder: (context, scrollController) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: responders.length,
+                  itemBuilder: (context, index) => _ResponderTile(
+                    responder: responders[index],
+                    onTap: () {
+                      _mapController.move(
+                          LatLng(responders[index].lat, responders[index].lng),
+                          _dfZoom + 5);
+                    },
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -244,77 +223,96 @@ class _TilesPageState extends State<TilesPage> {
 
 class Responder {
   final String name;
-  final String location;
-  final String assignedTo;
-  final String date;
-  final String time;
+  final double lat;
+  final double lng;
+  final String loc;
   final String status;
   final String image;
 
-  const Responder({
-    required this.name,
-    required this.location,
-    required this.assignedTo,
-    required this.date,
-    required this.time,
-    required this.status,
-    required this.image,
-  });
+  Responder(
+      {required this.name,
+      required this.lat,
+      required this.lng,
+      required this.loc,
+      required this.status,
+      required this.image});
 }
 
-class ResponderTile extends StatelessWidget {
+class _ResponderTile extends StatefulWidget {
   final Responder responder;
-  const ResponderTile({super.key, required this.responder});
+  final VoidCallback? onTap;
+
+  const _ResponderTile({Key? key, required this.responder, this.onTap})
+      : super(key: key);
+
+  @override
+  State<_ResponderTile> createState() => _ResponderTileState();
+}
+
+class _ResponderTileState extends State<_ResponderTile> {
+  String locationName = "Fetching location...";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocationName();
+  }
+
+  Future<void> _fetchLocationName() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          widget.responder.lat, widget.responder.lng);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        setState(() {
+          locationName = "${place.locality}, ${place.administrativeArea}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        locationName = widget.responder.loc;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.go('/profile'),
+    return InkWell(
+      onTap: widget.onTap,
+      borderRadius: BorderRadius.circular(dfRadius),
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: Colors.blue[900],
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(dfRadius)),
+        color: blue,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(dfInsets),
           child: Row(
             children: [
               CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(responder.image),
+                radius: 2 * dfRadius,
+                backgroundImage: NetworkImage(widget.responder.image),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      responder.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Status: ${responder.status}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[300],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Location: ${responder.location}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
-                    ),
+                    Text(widget.responder.name,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                    Text('Status: ${widget.responder.status}',
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: teal)),
+                    Text('Location: $locationName',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.white70)),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white),
             ],
           ),
         ),
@@ -330,7 +328,7 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.7,
+      width: 0.7 * MediaQuery.of(context).size.width,
       child: TextFormField(
         decoration: InputDecoration(
           filled: true,
@@ -339,15 +337,16 @@ class _SearchBar extends StatelessWidget {
           border: _border(const Color(0xFFF2F2F7)),
           enabledBorder: _border(const Color(0xFFF2F2F7)),
           hintText: 'Search here...',
-          contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+          contentPadding: const EdgeInsets.symmetric(vertical: dfInsets / 2),
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
         ),
+        onFieldSubmitted: (value) {},
       ),
     );
   }
 
   OutlineInputBorder _border(Color color) => OutlineInputBorder(
         borderSide: BorderSide(width: 0.5, color: color),
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: BorderRadius.circular(dfRadius),
       );
 }
