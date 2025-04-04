@@ -12,6 +12,9 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   go_router: ^14.8.0
   sliding_up_panel: ^2.0.0+1
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
