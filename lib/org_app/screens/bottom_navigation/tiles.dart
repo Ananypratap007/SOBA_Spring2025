@@ -8,31 +8,16 @@ const double dfRadius = 20;
 const Color blue = Color(0xff003366);
 const Color teal = Color(0xff03DAA2);
 
-final MapController _mapController = MapController();
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Responders Status',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: TilesPage(),
-    );
-  }
-}
-
-class TilesPage extends StatefulWidget {
-  const TilesPage({super.key});
+class TilesScreen extends StatefulWidget {
+  const TilesScreen({super.key});
 
   @override
-  State<TilesPage> createState() => _TilesPageState();
+  State<TilesScreen> createState() => _TilesScreenState();
 }
 
-class _TilesPageState extends State<TilesPage> {
+class _TilesScreenState extends State<TilesScreen> {
+  final MapController _mapController = MapController();
+
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
 
@@ -72,6 +57,7 @@ class _TilesPageState extends State<TilesPage> {
   @override
   void dispose() {
     _mapController.dispose();
+    _sheetController.dispose();
     super.dispose();
   }
 

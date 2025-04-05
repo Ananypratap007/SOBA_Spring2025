@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hive/hive.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soba_app/config/firebase_config.dart';
 import 'package:soba_app/shared/widgets/custom_form_fields.dart';
@@ -374,12 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   InfoTile(
                     label: 'Emergency Contacts',
-                    value: Hive.box('emergencyContacts').isNotEmpty
-                        ? Hive.box('emergencyContacts')
-                            .values
-                            .map((e) => e['name'])
-                            .join(', ')
-                        : 'None added',
+                    value: 'View List',
                     hasArrow: true,
                     onTap: () => context.push('/emergency-contacts'),
                   ),

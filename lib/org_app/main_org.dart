@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 // Firebase/store packages
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// Home Screen
+import 'package:soba_app/org_app/screens/bottom_navigation/home.dart';
 //Login Screen
 import 'package:soba_app/org_app/screens/authentication/login_screen.dart';
 // Sign Up Screens
@@ -16,16 +17,14 @@ import 'package:soba_app/features/org_features/checkintimer.dart';
 import 'package:soba_app/features/org_features/addemergencycontact.dart';
 import 'package:soba_app/shared/widgets/emergency_contacts_list.dart';
 import 'package:soba_app/org_app/screens/bottom_navigation/tiles.dart';
+// Bottom navigation bar
+import 'package:soba_app/features/org_features/bottom_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
   await Firebase.initializeApp();
-
-  // Initialize Hive
-  await Hive.initFlutter();
-  await Hive.openBox('emergencyContacts');
 
   runApp(const MyApp());
 }
@@ -48,7 +47,6 @@ class MyApp extends StatelessWidget {
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    // Auth routes
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
@@ -64,20 +62,22 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/complete-signup',
       builder: (context, state) {
-        // Get the userData passed from OrganizationCreatorSignUp
         final userData = state.extra as Map<String, String>? ?? {};
         return OrganizationRegistrationScreen(userData: userData);
       },
     ),
-
-    // Main app routes
+    // Protected Routes (must be logged in)
     GoRoute(
-        path: '/',
-        builder: (context, state) => const TilesPage() //ProfileScreen(),
-        ),
+      path: '/',
+      builder: (context, state) => PageWithBottomNav(child: HomeScreen()),
+    ),
+    GoRoute(
+      path: '/tiles',
+      builder: (context, state) => PageWithBottomNav(child: TilesScreen()),
+    ),
     GoRoute(
       path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
+      builder: (context, state) => ProfileScreen(),
     ),
     GoRoute(
       path: '/check-in',
@@ -105,20 +105,12 @@ final GoRouter _router = GoRouter(
   redirect: (BuildContext context, GoRouterState state) {
     final user = FirebaseAuth.instance.currentUser;
     final isAuthRoute = state.matchedLocation == '/login' ||
-        state.matchedLocation == '/signup' ||
+        state.matchedLocation == '/create-org-signup' ||
+        state.matchedLocation == '/join-org-signup' ||
         state.matchedLocation == '/complete-signup';
 
-    // If user is not logged in and not on an auth route, redirect to login
-    if (user == null && !isAuthRoute) {
-      return '/login';
-    }
-
-    // If user is logged in and tries to access auth routes, redirect to home
-    if (user != null && isAuthRoute) {
-      return '/';
-    }
-
-    // No redirect needed
+    if (user == null && !isAuthRoute) return '/login';
+    if (user != null && isAuthRoute) return '/';
     return null;
   },
 );
