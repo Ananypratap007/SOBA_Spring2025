@@ -524,6 +524,24 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "location",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/location-8.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "location_platform_interface",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/location_platform_interface-6.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "location_web",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/location_web-6.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
       "name": "logger",
       "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/logger-2.5.0",
       "packageUri": "lib/",
@@ -818,7 +836,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-05T21:25:46.378211Z",
+  "generated": "2025-04-06T06:21:57.972997Z",
   "generator": "pub",
   "generatorVersion": "3.6.1",
   "flutterRoot": "file:///C:/flutter",

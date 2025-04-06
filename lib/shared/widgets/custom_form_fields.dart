@@ -7,7 +7,8 @@ class SmartTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
 
-  const SmartTextField({super.key, 
+  const SmartTextField({
+    super.key,
     required this.label,
     required this.controller,
     this.hintText = '',
@@ -498,7 +499,6 @@ class InfoTile extends StatelessWidget {
   }
 }
 
-
 class SectionWidget extends StatelessWidget {
   final String title;
   final List<Widget> children;
@@ -533,10 +533,7 @@ class SectionWidget extends StatelessWidget {
         children: [
           Padding(
             padding: titlePadding,
-            child: Text(
-              title,
-              style: titleStyle
-            ),
+            child: Text(title, style: titleStyle),
           ),
           SizedBox(height: titleSpacing),
           Container(
@@ -557,8 +554,6 @@ class SectionWidget extends StatelessWidget {
     );
   }
 }
-
-
 
 String toTitleCase(String input) {
   if (input.isEmpty) return input;

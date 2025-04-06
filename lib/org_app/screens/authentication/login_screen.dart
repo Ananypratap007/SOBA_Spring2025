@@ -7,7 +7,7 @@ import 'package:soba_app/config/firebase_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:soba_app/org_app/screens/authentication/choose-signup.dart';
-import 'package:soba_app/org_app/screens/bottom_navigation/profile.dart';
+import 'package:soba_app/org_app/screens/bottom_navigation/home.dart';
 
 // class LoginScreen extends StatefulWidget {
 //   const LoginScreen({super.key, this.onLoggedIn});
@@ -700,7 +700,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 2) Navigate (or do whatever else you want) right after
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => ProfileScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
 
         // 3) If you have a callback to notify, call it too

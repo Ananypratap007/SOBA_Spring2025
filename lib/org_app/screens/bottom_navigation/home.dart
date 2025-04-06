@@ -61,10 +61,12 @@ class HomeScreen extends StatelessWidget {
                   _buildSection(
                       title: "Live Feed",
                       child: Container(
-                        height: 200, // Adjust height as needed
+                        height: 320,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(45),
+                          border:
+                              Border.all(color: Color(0xFF003366), width: 2.5),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withOpacity(0.2),
@@ -75,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(42),
                           child: FlutterMap(
                             options: MapOptions(
                               initialCenter: LatLng(37.7749, -122.4194),
@@ -117,7 +119,6 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.428,
-                          height: MediaQuery.of(context).size.width * 0.13,
                           child: ElevatedButton(
                             onPressed: () => {},
                             style: ElevatedButton.styleFrom(
@@ -134,7 +135,6 @@ class HomeScreen extends StatelessWidget {
                         ),
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.428,
-                          height: MediaQuery.of(context).size.width * 0.13,
                           child: ElevatedButton(
                             onPressed: () => {},
                             style: ElevatedButton.styleFrom(
