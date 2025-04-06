@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soba_app/features/user_features/bottom_nav_screen.dart';
 import 'package:soba_app/checkin/checkin_screen.dart';
-import 'package:soba_app/domain/profile_model.dart';
+import 'package:soba_app/shared/widgets/emergency_contacts_list.dart';
 import 'package:soba_app/user_app/screens/home/home_screen.dart';
 import 'package:soba_app/user_app/screens/home/visit_screen.dart';
 import 'package:soba_app/user_app/screens/authentication/login_screen.dart';
@@ -14,8 +14,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Create a stream to listen to auth state changes
 final authStateStream = FirebaseAuth.instance.authStateChanges();
-
-final ProfileModel _currentUser = dummyUsers[0];
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
@@ -53,6 +51,10 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/emergency-contacts',
+      builder: (context, state) => const EmergencyContactsScreen(),
+    ),
+    GoRoute(
       path: '/visit',
       builder: (BuildContext context, GoRouterState state) {
         return PageWithBottomNav(child: VisitScreen());
@@ -67,9 +69,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (BuildContext context, GoRouterState state) {
-        return PageWithBottomNav(
-          child: ProfileScreen(),
-        );
+        return ProfileScreen();
       },
     ),
     GoRoute(

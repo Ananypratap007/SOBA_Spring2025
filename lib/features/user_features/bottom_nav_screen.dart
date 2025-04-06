@@ -61,6 +61,8 @@ class _PageWithBottomNavState extends State<PageWithBottomNav> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: widget.child,
+      extendBody: true,
+      backgroundColor: const Color(0xFFF5F5F5),
       bottomNavigationBar: BottomBar(
         scheme: Theme.of(context).colorScheme,
         selected: _selected,
@@ -84,22 +86,60 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
-      ),
-      child: BottomNavigationBar(
-        onTap: onSelected,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF003366),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: selected,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Material(
+        color: Colors
+            .transparent, // Must be transparent to let items go through behind
+        elevation: 0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF003366), // your actual nav bar color
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(25),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              currentIndex: selected,
+              onTap: onSelected,
+              selectedItemColor: const Color(0xFF4CAF93),
+              unselectedItemColor: Colors.white,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.home,
+                    size: 26,
+                  ),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.map,
+                    size: 26,
+                  ),
+                  label: 'Map',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.person,
+                    size: 26,
+                  ),
+                  label: 'Profile',
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

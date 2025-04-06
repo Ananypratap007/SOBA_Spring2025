@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 // Firebase/store packages
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:soba_app/org_app/screens/activities/send_visit_form.dart';
 // Home Screen
 import 'package:soba_app/org_app/screens/bottom_navigation/home.dart';
 //Login Screen
@@ -70,6 +71,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => PageWithBottomNav(child: HomeScreen()),
+    ),
+    GoRoute(
+      path: '/visit-form',
+      builder: (context, state) => ClientFormScreen(),
     ),
     GoRoute(
       path: '/tiles',
