@@ -52,6 +52,9 @@ dependencies:
   flutter_flavorizr: ^2.3.0
   geocoding: ^3.0.0
   location: ^8.0.0
+  flutter_launcher_icons: ^0.14.3
+  intl: ^0.18.1
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:

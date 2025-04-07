@@ -74,6 +74,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "cli_util",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/cli_util-0.4.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "clock",
       "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/clock-1.1.1",
       "packageUri": "lib/",
@@ -238,6 +244,12 @@
     {
       "name": "flutter_flavorizr",
       "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_flavorizr-2.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "flutter_launcher_icons",
+      "rootUri": "file:///C:/Users/oleka/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_launcher_icons-0.14.3",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -836,7 +848,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-04-06T19:33:59.647831Z",
+  "generated": "2025-04-07T22:25:16.110069Z",
   "generator": "pub",
   "generatorVersion": "3.6.1",
   "flutterRoot": "file:///C:/flutter",

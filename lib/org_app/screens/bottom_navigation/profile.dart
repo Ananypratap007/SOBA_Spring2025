@@ -517,7 +517,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    toTitleCase(_userData?['name']) ?? 'User',
+                    toTitleCase(_userData?['name'] ?? '') ?? 'User',
                     style: TextStyle(
                       fontSize: 24,
                       color: Color(0xFF003366),

@@ -1,0 +1,6 @@
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/user_app_icon.png"
+  min_sdk_android: 21
+  android_flavor: user

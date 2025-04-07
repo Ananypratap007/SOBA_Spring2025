@@ -75,19 +75,31 @@ class _OrganizationRegistrationScreenState
       return;
     }
 
-    setState(() => _isLoading = true);
+    final email = widget.userData['email'];
+    final password = widget.userData['password'];
+
+    if (email == null ||
+        password == null ||
+        email.isEmpty ||
+        password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Missing email or password')),
+      );
+      setState(() => _isLoading = false);
+      return;
+    }
 
     try {
       // 1. First create the user account
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: widget.userData['email']!,
-        password: widget.userData['password']!,
+        email: email,
+        password: password,
       );
 
       // 2. Create organization
       final orgId = await _generateOrgId(_orgNameController.text);
-      final orgRef = await _firestore.collection("organizations").add({
+      await _firestore.collection("organizations").add({
         'orgId': orgId,
         'name': _orgNameController.text,
         'email': _orgEmailController.text,
@@ -108,8 +120,7 @@ class _OrganizationRegistrationScreenState
         'phone': widget.userData['phone'],
         'username': widget.userData['username'],
         'email': widget.userData['email'],
-        'title': _adminRoleController.text,
-        'role': 'admin',
+        'role': _adminRoleController.text,
         'organizationId': orgId,
         'createdAt': FieldValue.serverTimestamp(),
         'isAdmin': true,

@@ -111,6 +111,10 @@ class DualInputField extends StatelessWidget {
   final double spacing;
   final double borderRadius; // New parameter for border radius
   final Color fillColor; // New parameter for fill color
+  final VoidCallback? firstOnTap;
+  final VoidCallback? secondOnTap;
+  final bool firstReadOnly;
+  final bool secondReadOnly;
 
   const DualInputField({
     super.key,
@@ -127,6 +131,10 @@ class DualInputField extends StatelessWidget {
     this.spacing = 16.0,
     this.borderRadius = 12.0, // Default radius value
     this.fillColor = Colors.white, // Default fill color
+    this.firstOnTap,
+    this.secondOnTap,
+    this.firstReadOnly = false,
+    this.secondReadOnly = false,
   });
 
   @override
@@ -138,6 +146,8 @@ class DualInputField extends StatelessWidget {
           Expanded(
             child: TextFormField(
               controller: firstController,
+              readOnly: firstReadOnly,
+              onTap: firstOnTap,
               decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 labelText: firstLabel,
@@ -157,7 +167,7 @@ class DualInputField extends StatelessWidget {
                 fillColor: fillColor,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 14,
                 ),
               ),
               keyboardType: firstInputType,
@@ -168,6 +178,8 @@ class DualInputField extends StatelessWidget {
           Expanded(
             child: TextFormField(
               controller: secondController,
+              readOnly: secondReadOnly,
+              onTap: secondOnTap,
               decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 labelText: secondLabel,
@@ -181,13 +193,13 @@ class DualInputField extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Color(0xFF4CAF93), width: 2),
+                  borderSide: BorderSide(color: Colors.blue.shade300, width: 2),
                 ),
                 filled: true,
                 fillColor: fillColor,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 14,
                 ),
               ),
               keyboardType: secondInputType,
@@ -555,10 +567,10 @@ class SectionWidget extends StatelessWidget {
   }
 }
 
-String toTitleCase(String input) {
-  if (input.isEmpty) return input;
-  return input.split(' ').map((word) {
-    if (word.isEmpty) return word;
+String toTitleCase(String? str) {
+  if (str == null || str.isEmpty) return '';
+  return str.split(' ').map((word) {
+    if (word.isEmpty) return '';
     return word[0].toUpperCase() + word.substring(1).toLowerCase();
   }).join(' ');
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,11 +15,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
+import '../../../shared/widgets/custom_form_fields.dart';
+
 class JoinOrganizationScreen2 extends StatefulWidget {
   const JoinOrganizationScreen2({super.key});
 
   @override
-  State<JoinOrganizationScreen2> createState() => _JoinOrganizationScreen2State();
+  State<JoinOrganizationScreen2> createState() =>
+      _JoinOrganizationScreen2State();
 }
 
 class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
@@ -89,6 +93,196 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
     }
   }
 
+// Pick Height
+  void _showHeightPicker() {
+    int selectedFeet = 5;
+    int selectedInches = 6;
+    int selectedCm = 170;
+    String selectedUnit = 'ft';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SizedBox(
+              height: 250,
+              child: Row(
+                children: [
+                  // Height Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'ft'
+                            ? selectedFeet - 4
+                            : selectedCm - 100,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          if (selectedUnit == 'ft') {
+                            selectedFeet = index + 4;
+                          } else {
+                            selectedCm = index + 100;
+                          }
+                        });
+                      },
+                      children: selectedUnit == 'ft'
+                          ? List.generate(
+                              4,
+                              (index) => Center(child: Text("${index + 4} ft")),
+                            )
+                          : List.generate(
+                              150,
+                              (index) =>
+                                  Center(child: Text("${index + 100} cm")),
+                            ),
+                    ),
+                  ),
+
+                  // Inches picker (only for ft)
+                  if (selectedUnit == 'ft')
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: selectedInches,
+                        ),
+                        onSelectedItemChanged: (index) {
+                          setModalState(() {
+                            selectedInches = index;
+                          });
+                        },
+                        children: List.generate(
+                          12,
+                          (index) => Center(child: Text("$index in")),
+                        ),
+                      ),
+                    )
+                  else
+                    const Spacer(), // Keep layout balanced
+
+                  // Unit Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'cm' ? 0 : 1,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedUnit = index == 0 ? 'cm' : 'ft';
+                        });
+                      },
+                      children: const [
+                        Center(child: Text("cm")),
+                        Center(child: Text("ft")),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      String formattedHeight;
+      if (selectedUnit == 'ft') {
+        formattedHeight = "$selectedFeet'${selectedInches}\"";
+      } else {
+        formattedHeight = "$selectedCm cm";
+      }
+
+      setState(() {
+        _heightController.text = formattedHeight;
+      });
+    });
+  }
+
+// Pick the weight
+  void _showWeightPicker() {
+    double selectedWeight = 150.0;
+    String selectedUnit = 'lb';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SizedBox(
+              height: 250,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Weight Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'lb'
+                            ? (selectedWeight - 80).toInt()
+                            : ((selectedWeight - 30) / 0.5).round(),
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedWeight = selectedUnit == 'lb'
+                              ? 80 + index.toDouble()
+                              : 30 + index * 0.5;
+                        });
+                      },
+                      children: selectedUnit == 'lb'
+                          ? List.generate(
+                              321,
+                              (index) => Center(
+                                child: Text("${80 + index}"),
+                              ),
+                            )
+                          : List.generate(
+                              301,
+                              (index) => Center(
+                                child: Text(
+                                    "${(30 + index * 0.5).toStringAsFixed(1)}"),
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  // Unit Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'lb' ? 0 : 1,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedUnit = index == 0 ? 'lb' : 'kg';
+                          // Optionally reset weight for visual consistency
+                          selectedWeight = selectedUnit == 'lb' ? 150 : 68.0;
+                        });
+                      },
+                      children: const [
+                        Center(child: Text("lb")),
+                        Center(child: Text("kg")),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() async {
+      final formattedWeight =
+          "${selectedWeight.toStringAsFixed(1)} $selectedUnit";
+      setState(() {
+        _weightController.text = formattedWeight;
+      });
+    });
+  }
+
   // Function to take photo with camera
   Future<void> _takePhoto() async {
     final ImagePicker picker = ImagePicker();
@@ -126,6 +320,7 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
         'race': _raceController.text.trim(),
         'gender': _genderController.text.trim(),
         'eyeColor': _eyeColorController.text.trim(),
+        'isAdmin': true,
         'hairColor': _hairColorController.text.trim(),
         'height': _heightController.text.trim(),
         'weight': _weightController.text.trim(),
@@ -289,7 +484,11 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
                 firstLabel: 'Weight',
                 secondLabel: 'Height',
                 firstHint: "e.g. 110 lb",
-                secondHint: "e.g. 5'11",
+                secondHint: "e.g. 5'11\" or 180 cm",
+                firstReadOnly: true,
+                secondReadOnly: true,
+                firstOnTap: _showWeightPicker,
+                secondOnTap: _showHeightPicker,
                 fillColor: Colors.grey.shade50,
               ),
 
@@ -416,109 +615,6 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
           ),
         );
       },
-    );
-  }
-}
-
-class DualInputField extends StatelessWidget {
-  final TextEditingController firstController;
-  final TextEditingController secondController;
-  final String firstLabel;
-  final String secondLabel;
-  final String? firstHint;
-  final String? secondHint;
-  final TextInputType? firstInputType;
-  final TextInputType? secondInputType;
-  final String? Function(String?)? firstValidator;
-  final String? Function(String?)? secondValidator;
-  final double spacing;
-  final double borderRadius; // New parameter for border radius
-  final Color fillColor; // New parameter for fill color
-
-  const DualInputField({
-    super.key,
-    required this.firstController,
-    required this.secondController,
-    required this.firstLabel,
-    required this.secondLabel,
-    this.firstHint,
-    this.secondHint,
-    this.firstInputType,
-    this.secondInputType,
-    this.firstValidator,
-    this.secondValidator,
-    this.spacing = 16.0,
-    this.borderRadius = 12.0, // Default radius value
-    this.fillColor = Colors.white, // Default fill color
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: firstController,
-              decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                labelText: firstLabel,
-                hintText: firstHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Color(0xFF4CAF93), width: 2),
-                ),
-                filled: true,
-                fillColor: fillColor,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              keyboardType: firstInputType,
-              validator: firstValidator,
-            ),
-          ),
-          SizedBox(width: spacing),
-          Expanded(
-            child: TextFormField(
-              controller: secondController,
-              decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                labelText: secondLabel,
-                hintText: secondHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.blue.shade300, width: 2),
-                ),
-                filled: true,
-                fillColor: fillColor,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              keyboardType: secondInputType,
-              validator: secondValidator,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

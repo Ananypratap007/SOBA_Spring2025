@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
+import 'package:soba_app/shared/widgets/custom_form_fields.dart';
 
 class CompleteSignupScreen extends StatefulWidget {
   const CompleteSignupScreen({super.key});
@@ -70,6 +72,196 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
     }
   }
 
+// Pick Height
+  void _showHeightPicker() {
+    int selectedFeet = 5;
+    int selectedInches = 6;
+    int selectedCm = 170;
+    String selectedUnit = 'ft';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SizedBox(
+              height: 250,
+              child: Row(
+                children: [
+                  // Height Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'ft'
+                            ? selectedFeet - 4
+                            : selectedCm - 100,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          if (selectedUnit == 'ft') {
+                            selectedFeet = index + 4;
+                          } else {
+                            selectedCm = index + 100;
+                          }
+                        });
+                      },
+                      children: selectedUnit == 'ft'
+                          ? List.generate(
+                              4,
+                              (index) => Center(child: Text("${index + 4} ft")),
+                            )
+                          : List.generate(
+                              150,
+                              (index) =>
+                                  Center(child: Text("${index + 100} cm")),
+                            ),
+                    ),
+                  ),
+
+                  // Inches picker (only for ft)
+                  if (selectedUnit == 'ft')
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: selectedInches,
+                        ),
+                        onSelectedItemChanged: (index) {
+                          setModalState(() {
+                            selectedInches = index;
+                          });
+                        },
+                        children: List.generate(
+                          12,
+                          (index) => Center(child: Text("$index in")),
+                        ),
+                      ),
+                    )
+                  else
+                    const Spacer(), // Keep layout balanced
+
+                  // Unit Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'cm' ? 0 : 1,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedUnit = index == 0 ? 'cm' : 'ft';
+                        });
+                      },
+                      children: const [
+                        Center(child: Text("cm")),
+                        Center(child: Text("ft")),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      String formattedHeight;
+      if (selectedUnit == 'ft') {
+        formattedHeight = "$selectedFeet'${selectedInches}\"";
+      } else {
+        formattedHeight = "$selectedCm cm";
+      }
+
+      setState(() {
+        _heightController.text = formattedHeight;
+      });
+    });
+  }
+
+// Pick the weight
+  void _showWeightPicker() {
+    double selectedWeight = 150.0;
+    String selectedUnit = 'lb';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SizedBox(
+              height: 250,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Weight Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'lb'
+                            ? (selectedWeight - 80).toInt()
+                            : ((selectedWeight - 30) / 0.5).round(),
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedWeight = selectedUnit == 'lb'
+                              ? 80 + index.toDouble()
+                              : 30 + index * 0.5;
+                        });
+                      },
+                      children: selectedUnit == 'lb'
+                          ? List.generate(
+                              321,
+                              (index) => Center(
+                                child: Text("${80 + index}"),
+                              ),
+                            )
+                          : List.generate(
+                              301,
+                              (index) => Center(
+                                child: Text(
+                                    "${(30 + index * 0.5).toStringAsFixed(1)}"),
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  // Unit Picker
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: selectedUnit == 'lb' ? 0 : 1,
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          selectedUnit = index == 0 ? 'lb' : 'kg';
+                          // Optionally reset weight for visual consistency
+                          selectedWeight = selectedUnit == 'lb' ? 150 : 68.0;
+                        });
+                      },
+                      children: const [
+                        Center(child: Text("lb")),
+                        Center(child: Text("kg")),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() async {
+      final formattedWeight =
+          "${selectedWeight.toStringAsFixed(1)} $selectedUnit";
+      setState(() {
+        _weightController.text = formattedWeight;
+      });
+    });
+  }
+
 // Function to pick image from gallery
 
   Future<void> _pickImage() async {
@@ -124,6 +316,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
         'hairColor': _hairColorController.text.trim(),
         'height': _heightController.text.trim(),
         'weight': _weightController.text.trim(),
+        'isAdmin': false,
         'age': _ageController.text.trim(),
         'profileImage': profileImageUrl, // Store imgBB URL
         'profileCompleted': true,
@@ -166,6 +359,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
     _heightController.dispose();
     _weightController.dispose();
     _dobController.dispose();
+    _roleController.dispose();
     _ageController.dispose();
 
     super.dispose();
@@ -266,6 +460,33 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
               ),
               const SizedBox(height: 8),
 
+              TextField(
+                controller: _roleController,
+                decoration: InputDecoration(
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  labelText: 'Role/Title/Position',
+                  hintText: 'e.g. Police Officer',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Color(0xFF4CAF93), width: 2),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
               // Race and Gender TextFields
               DualInputField(
                 firstController: _raceController,
@@ -284,7 +505,11 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
                 firstLabel: 'Weight',
                 secondLabel: 'Height',
                 firstHint: "e.g. 110 lb",
-                secondHint: "e.g. 5'11",
+                secondHint: "e.g. 5'11\" or 180 cm",
+                firstReadOnly: true,
+                secondReadOnly: true,
+                firstOnTap: _showWeightPicker,
+                secondOnTap: _showHeightPicker,
                 fillColor: Colors.grey.shade50,
               ),
 
@@ -411,109 +636,6 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class DualInputField extends StatelessWidget {
-  final TextEditingController firstController;
-  final TextEditingController secondController;
-  final String firstLabel;
-  final String secondLabel;
-  final String? firstHint;
-  final String? secondHint;
-  final TextInputType? firstInputType;
-  final TextInputType? secondInputType;
-  final String? Function(String?)? firstValidator;
-  final String? Function(String?)? secondValidator;
-  final double spacing;
-  final double borderRadius; // New parameter for border radius
-  final Color fillColor; // New parameter for fill color
-
-  const DualInputField({
-    super.key,
-    required this.firstController,
-    required this.secondController,
-    required this.firstLabel,
-    required this.secondLabel,
-    this.firstHint,
-    this.secondHint,
-    this.firstInputType,
-    this.secondInputType,
-    this.firstValidator,
-    this.secondValidator,
-    this.spacing = 16.0,
-    this.borderRadius = 12.0, // Default radius value
-    this.fillColor = Colors.white, // Default fill color
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: firstController,
-              decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                labelText: firstLabel,
-                hintText: firstHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Color(0xFF4CAF93), width: 2),
-                ),
-                filled: true,
-                fillColor: fillColor,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              keyboardType: firstInputType,
-              validator: firstValidator,
-            ),
-          ),
-          SizedBox(width: spacing),
-          Expanded(
-            child: TextFormField(
-              controller: secondController,
-              decoration: InputDecoration(
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                labelText: secondLabel,
-                hintText: secondHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  borderSide: BorderSide(color: Colors.blue.shade300, width: 2),
-                ),
-                filled: true,
-                fillColor: fillColor,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              keyboardType: secondInputType,
-              validator: secondValidator,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
