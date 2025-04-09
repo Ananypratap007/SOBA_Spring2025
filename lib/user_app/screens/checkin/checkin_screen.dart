@@ -185,10 +185,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:soba_app/checkin/checkin.dart';
-import 'package:soba_app/checkin/selfie_confirmation.dart';
-import 'package:soba_app/checkin/vehicle_picture.dart';
-import 'package:soba_app/checkin/vehicle_review.dart';
+import 'package:soba_app/user_app/screens/checkin/checkin.dart';
+import 'package:soba_app/user_app/screens/checkin/selfie_confirmation.dart';
+import 'package:soba_app/user_app/screens/checkin/vehicle_picture.dart';
+import 'package:soba_app/user_app/screens/checkin/vehicle_review.dart';
 
 class CheckinScreen extends StatefulWidget {
   const CheckinScreen({super.key});

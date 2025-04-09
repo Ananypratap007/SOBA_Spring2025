@@ -24,7 +24,7 @@ class SelfieReviewScreen extends StatelessWidget {
                   color: Colors.grey,
                 ),
                 const SizedBox(height: 30),
-                const Text("Describe what you are wearing today"),
+                const Text("DDDescribe what you are wearing today"),
                 const SizedBox(height: 0),
                 TextField(
                   decoration: InputDecoration(

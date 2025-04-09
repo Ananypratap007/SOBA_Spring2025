@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:soba_app/features/user_features/bottom_nav_screen.dart';
-import 'package:soba_app/checkin/checkin_screen.dart';
+import 'package:soba_app/user_app/screens/checkin/checkin_screen.dart';
 import 'package:soba_app/shared/widgets/emergency_contacts_list.dart';
 import 'package:soba_app/user_app/screens/home/home_screen.dart';
 import 'package:soba_app/user_app/screens/home/visit_screen.dart';
