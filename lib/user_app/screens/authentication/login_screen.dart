@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           Expanded(
             child: Center(
               child: Text(
-                'Welcome to Back',
+                'Welcome Back To Universal Safety!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 35,
@@ -143,8 +143,9 @@ class _LoginPageState extends State<LoginPage> {
             width: double.infinity,
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
+              minHeight: MediaQuery.of(context).size.height * 0.5,
             ),
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
             decoration: BoxDecoration(
               color: Color(0xFF003366),
               borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
@@ -194,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 16),
                   // Password TextField
                   TextField(
                     controller: _passwordController,

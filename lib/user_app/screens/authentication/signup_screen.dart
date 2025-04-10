@@ -157,6 +157,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -165,214 +166,207 @@ class _SignUpPageState extends State<SignUpPage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 45,
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'Welcome to Universal Safety',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 4,
-                        color: Colors.black54,
-                        offset: Offset(1, 1),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              width: double.infinity, //MediaQuery.of(context).size.width * 0.9,
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8,
-              ),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Color(0xFF003366),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Welcome Text
-                    SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      'Create Your Account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Name TextField
-                    SmartTextField(
-                      label: 'Full Name',
-                      controller: _nameController,
-                    ),
-                    // Phone Number TextField
-                    SmartTextField(
-                      label: 'Phone Number',
-                      controller: _phoneController,
-                    ),
-
-                    // Username TextField
-                    SmartTextField(
-                      label: 'Username',
-                      controller: _usernameController,
-                    ),
-
-                    // Email TextField
-                    SmartTextField(
-                      label: 'Email address',
-                      controller: _emailController,
-                    ),
-                    // Password TextField
-                    SmartTextField(
-                      label: 'Password',
-                      controller: _passwordController,
-                    ),
-
-                    // Confirm Password TextField
-                    SmartTextField(
-                      label: 'Confirm Password',
-                      controller: _confirmPasswordController,
-                    ),
-
-                    // Terms and Conditions Checkbox
-                    Row(
-                      children: [
-                        Checkbox(
-                          activeColor: Colors.white,
-                          value: _isTermsAccepted,
-                          onChanged: (value) {
-                            setState(() {
-                              _isTermsAccepted = value!;
-                            });
-                          },
-                        ),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'I accept the ',
-                              style: TextStyle(color: Colors.white),
-                              children: [
-                                TextSpan(
-                                  text: 'Terms and Conditions',
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TermsAndConditionsPage(),
-                                        ),
-                                      );
-                                    },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-
-                    // Sign Up Button
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _handleSignUp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0XFF4CAF93),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Text(
-                              'Sign Up',
-                              style:
-                                  TextStyle(fontSize: 24, color: Colors.white),
-                            ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Social Sign Up Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            print('Google Sign Up');
-                          },
-                          icon: const FaIcon(FontAwesomeIcons.google,
-                              color: Colors.red, size: 32),
-                        ),
-                        const SizedBox(width: 20),
-                        IconButton(
-                          onPressed: () {
-                            print('Apple Sign Up');
-                          },
-                          icon: const FaIcon(FontAwesomeIcons.apple,
-                              color: Colors.white, size: 37),
-                        ),
-                      ],
-                    ),
-
-                    // Login Link
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Already have an account? Login here",
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-
-                    // Help Text
-                    const SizedBox(height: 12),
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              Text(
+                'Welcome to Universal Safety',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      color: Colors.black54,
+                      offset: Offset(1, 1),
+                    )
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF003366),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Welcome Text
+                        SizedBox(height: 2),
+                        Text(
+                          'Create Your Account',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Name TextField
+                        SmartTextField(
+                          label: 'Full Name',
+                          controller: _nameController,
+                        ),
+                        // Phone Number TextField
+                        SmartTextField(
+                          label: 'Phone Number',
+                          controller: _phoneController,
+                        ),
+
+                        // Username TextField
+                        SmartTextField(
+                          label: 'Username',
+                          controller: _usernameController,
+                        ),
+
+                        // Email TextField
+                        SmartTextField(
+                          label: 'Email address',
+                          controller: _emailController,
+                        ),
+                        // Password TextField
+                        SmartTextField(
+                          label: 'Password',
+                          controller: _passwordController,
+                        ),
+
+                        // Confirm Password TextField
+                        SmartTextField(
+                          label: 'Confirm Password',
+                          controller: _confirmPasswordController,
+                        ),
+
+                        // Terms and Conditions Checkbox
+                        Row(
+                          children: [
+                            Checkbox(
+                              activeColor: Colors.white,
+                              value: _isTermsAccepted,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isTermsAccepted = value!;
+                                });
+                              },
+                            ),
+                            Expanded(
+                              child: RichText(
+                                text: TextSpan(
+                                  text: 'I accept the ',
+                                  style: TextStyle(color: Colors.white),
+                                  children: [
+                                    TextSpan(
+                                      text: 'Terms and Conditions',
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const TermsAndConditionsPage(),
+                                            ),
+                                          );
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+
+                        // Sign Up Button
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _handleSignUp,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0XFF4CAF93),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text(
+                                  'Sign Up',
+                                  style:
+                                      TextStyle(fontSize: 24, color: Colors.white),
+                                ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Social Sign Up Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                print('Google Sign Up');
+                              },
+                              icon: const FaIcon(FontAwesomeIcons.google,
+                                  color: Colors.red, size: 32),
+                            ),
+                            const SizedBox(width: 20),
+                            IconButton(
+                              onPressed: () {
+                                print('Apple Sign Up');
+                              },
+                              icon: const FaIcon(FontAwesomeIcons.apple,
+                                  color: Colors.white, size: 37),
+                            ),
+                          ],
+                        ),
+
+                        // Login Link
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "Already have an account? Login here",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+
+                        // Help Text
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
