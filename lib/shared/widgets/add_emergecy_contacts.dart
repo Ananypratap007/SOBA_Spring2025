@@ -7,8 +7,7 @@ class AddEmergencyContactScreen extends StatefulWidget {
   final Map<String, dynamic>? contact;
   final int? index;
 
-  const AddEmergencyContactScreen({Key? key, this.contact, this.index})
-      : super(key: key);
+  const AddEmergencyContactScreen({super.key, this.contact, this.index});
 
   @override
   State<AddEmergencyContactScreen> createState() =>

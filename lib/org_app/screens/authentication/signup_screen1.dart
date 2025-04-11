@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:soba_app/config/firebase_config.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:soba_app/org_app/screens/authentication/signup_screen2.dart';
-import 'package:soba_app/core/common/terms.dart';
 import 'package:soba_app/org_app/screens/authentication/login_screen.dart';
 import 'package:soba_app/shared/widgets/custom_form_fields.dart';
 

@@ -407,7 +407,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               301,
                               (index) => Center(
                                 child: Text(
-                                    "${(30 + index * 0.5).toStringAsFixed(1)}"),
+                                    (30 + index * 0.5).toStringAsFixed(1)),
                               ),
                             ),
                     ),
