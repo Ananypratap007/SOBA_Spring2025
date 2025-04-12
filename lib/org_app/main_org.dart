@@ -20,12 +20,13 @@ import 'package:soba_app/shared/widgets/emergency_contacts_list.dart';
 import 'package:soba_app/org_app/screens/bottom_navigation/tiles.dart';
 // Bottom navigation bar
 import 'package:soba_app/features/org_features/bottom_navigator.dart';
+import 'package:soba_app/config/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }

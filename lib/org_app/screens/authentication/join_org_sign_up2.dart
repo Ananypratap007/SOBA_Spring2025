@@ -189,7 +189,7 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
     ).whenComplete(() {
       String formattedHeight;
       if (selectedUnit == 'ft') {
-        formattedHeight = "$selectedFeet'${selectedInches}\"";
+        formattedHeight = "$selectedFeet'$selectedInches\"";
       } else {
         formattedHeight = "$selectedCm cm";
       }
@@ -242,7 +242,7 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
                               301,
                               (index) => Center(
                                 child: Text(
-                                    "${(30 + index * 0.5).toStringAsFixed(1)}"),
+                                    (30 + index * 0.5).toStringAsFixed(1)),
                               ),
                             ),
                     ),

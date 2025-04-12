@@ -228,8 +228,7 @@ class _ResponderTile extends StatefulWidget {
   final Responder responder;
   final VoidCallback? onTap;
 
-  const _ResponderTile({Key? key, required this.responder, this.onTap})
-      : super(key: key);
+  const _ResponderTile({super.key, required this.responder, this.onTap});
 
   @override
   State<_ResponderTile> createState() => _ResponderTileState();
