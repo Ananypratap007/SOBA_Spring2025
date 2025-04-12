@@ -249,18 +249,15 @@ class _CheckinScreenState extends State<CheckinScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0XFF4CAF93),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.only(top: 50),
             width: double.infinity,
             height: 120,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [const Color(0xFF003366), const Color(0xFF0066CC)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+            decoration: const BoxDecoration(
+              color: Color(0XFF4CAF93),
             ),
             child: Stack(
               children: [
@@ -277,8 +274,11 @@ class _CheckinScreenState extends State<CheckinScreen> {
                   alignment: Alignment.centerRight,
                   child: IconButton(
                     icon: const Text(
-                      'exit',
-                      style: TextStyle(color: Colors.white),
+                      'Exit',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     onPressed: () {
                       _updateState(CheckinState.selfie);
@@ -289,8 +289,8 @@ class _CheckinScreenState extends State<CheckinScreen> {
                 Center(
                   child: Text(
                     _pageTitle,
-                    style: TextStyle(
-                      fontSize: 30,
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -299,8 +299,19 @@ class _CheckinScreenState extends State<CheckinScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          Expanded(child: _currentPage),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFF003366),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: _currentPage,
+            ),
+          ),
         ],
       ),
     );

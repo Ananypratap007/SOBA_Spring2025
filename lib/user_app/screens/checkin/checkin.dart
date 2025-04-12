@@ -75,21 +75,53 @@ class _SelfiePageState extends State<SelfiePage> {
   Widget build(BuildContext context) {
     if (!_isInitialized) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Color(0xFF003366),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0XFF4CAF93),
+          )
+        ),
       );
     }
 
     return Scaffold(
+      backgroundColor: Color(0xFF003366),
       body: Stack(
         children: [
           Transform.scale(
             scale: 1 / (_controller!.value.aspectRatio * MediaQuery.of(context).size.aspectRatio),
             child: Center(
-              child: CameraPreview(_controller!),
+              child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()..rotateY(3.14159), // Mirror horizontally (PI radians)
+                child: CameraPreview(_controller!),
+              ),
             ),
           ),
           Positioned(
-            bottom: 30,
+            top: 20,
+            left: 0,
+            right: 0,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0XFF4CAF93).withOpacity(0.8),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Please position your face within the frame and take a clear selfie.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 50,
             left: 0,
             right: 0,
             child: Center(
@@ -98,8 +130,15 @@ class _SelfiePageState extends State<SelfiePage> {
                 child: Container(
                   padding: const EdgeInsets.all(15),
                   decoration: const BoxDecoration(
-                    color: Colors.redAccent,
+                    color: Color(0XFF4CAF93),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.camera_alt,

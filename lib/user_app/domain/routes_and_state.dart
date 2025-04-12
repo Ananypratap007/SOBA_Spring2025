@@ -57,7 +57,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/visit',
       builder: (BuildContext context, GoRouterState state) {
-        return PageWithBottomNav(child: VisitScreen());
+        return VisitScreen();
       },
     ),
     GoRoute(
@@ -69,7 +69,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (BuildContext context, GoRouterState state) {
-        return ProfileScreen();
+        return PageWithBottomNav(child:ProfileScreen());
       },
     ),
     GoRoute(
