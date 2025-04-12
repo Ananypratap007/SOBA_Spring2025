@@ -61,26 +61,63 @@ class _PageWithBottomNavState extends State<PageWithBottomNav> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: widget.child,
-      // Remove extendBody if you don’t want the body to extend behind the bottom bar
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:
-            const Color(0xFF003366), // your desired background color
-        currentIndex: _selected,
-        onTap: _onSelected,
+      extendBody: false,
+      backgroundColor: const Color(0xFFF5F5F5),
+      bottomNavigationBar: BottomBar(
+        scheme: Theme.of(context).colorScheme,
+        selected: _selected,
+        onSelected: _onSelected,
+      ),
+    );
+  }
+}
+
+class BottomBar extends StatelessWidget {
+  const BottomBar({
+    super.key,
+    required this.scheme,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final ColorScheme scheme;
+  final int selected;
+  final Function(int newValue) onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF003366),
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        currentIndex: selected,
+        onTap: onSelected,
         selectedItemColor: const Color(0xFF4CAF93),
         unselectedItemColor: Colors.white,
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 26),
+            icon: Icon(
+              Icons.home,
+              size: 26,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map, size: 26),
+            icon: Icon(
+              Icons.map,
+              size: 26,
+            ),
             label: 'Map',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 26),
+            icon: Icon(
+              Icons.person,
+              size: 26,
+            ),
             label: 'Profile',
           ),
         ],
