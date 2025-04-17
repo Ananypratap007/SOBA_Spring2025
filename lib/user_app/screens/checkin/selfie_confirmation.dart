@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class SelfieReviewScreen extends StatelessWidget {
   const SelfieReviewScreen({
     super.key,
+    required this.imagePath,
     this.onSelfieConfirmed,
   });
 
+  final String imagePath;
   final VoidCallback? onSelfieConfirmed;
 
   @override
@@ -34,10 +37,20 @@ class SelfieReviewScreen extends StatelessWidget {
                             width: 3,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.account_circle,
-                          size: 150,
-                          color: Colors.white70,
+                        child: ClipOval(
+                          child: Image.file(
+                            File(imagePath),
+                            fit: BoxFit.cover,
+                            width: 180,
+                            height: 180,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.account_circle,
+                                size: 150,
+                                color: Colors.white70,
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 30),

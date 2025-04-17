@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 class VehiclePhotoScreen extends StatefulWidget {
   const VehiclePhotoScreen({super.key, this.onVehiclePhotoTaken});
 
-  final VoidCallback? onVehiclePhotoTaken;
+  final Function(String imagePath)? onVehiclePhotoTaken;
 
   @override
   State<VehiclePhotoScreen> createState() => _VehiclePhotoScreenState();
@@ -50,7 +50,7 @@ class _VehiclePhotoScreenState extends State<VehiclePhotoScreen> {
 
     try {
       final image = await _controller!.takePicture();
-      widget.onVehiclePhotoTaken?.call();
+      widget.onVehiclePhotoTaken?.call(image.path);
     } catch (e) {
       debugPrint('Error taking picture: $e');
     }

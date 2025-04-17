@@ -1,54 +1,14 @@
-// import 'package:flutter/material.dart';
-
-// class VehicleReviewScreen extends StatelessWidget {
-//   const VehicleReviewScreen({
-//     super.key,
-//     this.onFinished,
-//   });
-
-//   final VoidCallback? onFinished;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Center(
-//         child: Column(
-//           children: [
-//             Expanded(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   const Icon(
-//                     Icons.directions_car,
-//                     size: 120,
-//                     color: Colors.grey,
-//                   ),
-//                   const SizedBox(height: 20),
-//                   const Text("Review your vehicle photo"),
-//                   const SizedBox(height: 20),
-//                   ElevatedButton(
-//                     onPressed: () => onFinished?.call(),
-//                     child: const Text("Finish"),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class VehicleReviewScreen extends StatelessWidget {
   const VehicleReviewScreen({
     super.key,
+    required this.imagePath,
     this.onFinished,
   });
 
+  final String imagePath;
   final VoidCallback? onFinished;
 
   @override
@@ -64,19 +24,31 @@ class VehicleReviewScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(30),
+                    width: 200,
+                    height: 150,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: const Color(0XFF4CAF93),
                         width: 2,
                       ),
                     ),
-                    child: const Icon(
-                      Icons.directions_car,
-                      size: 100,
-                      color: Colors.white70,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        File(imagePath),
+                        fit: BoxFit.cover,
+                        width: 200,
+                        height: 150,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.directions_car,
+                            size: 100,
+                            color: Colors.white70,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),

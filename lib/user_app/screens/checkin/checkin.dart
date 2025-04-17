@@ -7,7 +7,7 @@ class SelfiePage extends StatefulWidget {
     this.onSelfieTaken,
   });
 
-  final VoidCallback? onSelfieTaken;
+  final Function(String imagePath)? onSelfieTaken;
 
   @override
   State<SelfiePage> createState() => _SelfiePageState();
@@ -59,7 +59,7 @@ class _SelfiePageState extends State<SelfiePage> {
 
     try {
       final image = await _controller!.takePicture();
-      widget.onSelfieTaken?.call();
+      widget.onSelfieTaken?.call(image.path);
     } catch (e) {
       debugPrint('Error taking picture: $e');
     }
