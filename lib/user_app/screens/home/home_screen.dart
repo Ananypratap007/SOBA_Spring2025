@@ -12,9 +12,11 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   bool connected = false;
   bool _isVisitAccepted = false;
+  bool _notificationsEnabled = true;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
+  late Animation<double> _bellAnimation;
 
   @override
   void initState() {
@@ -27,7 +29,35 @@ class _HomeScreenState extends State<HomeScreen>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+    
+    // Bell shake animation
+    _bellAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -0.2), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.2, end: 0.2), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.2, end: -0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.1, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.0, 0.5),
+    ));
+    
     _animationController.repeat(reverse: true);
+  }
+
+  void _toggleNotifications() {
+    setState(() {
+      _notificationsEnabled = !_notificationsEnabled;
+      
+      // Play animation once when enabling notifications
+      if (_notificationsEnabled) {
+        _animationController.reset();
+        _animationController.forward().then((_) {
+          // After animation completes, continue the regular animation
+          _animationController.repeat(reverse: true);
+        });
+      }
+    });
   }
 
   @override
@@ -62,11 +92,46 @@ class _HomeScreenState extends State<HomeScreen>
         backgroundColor: const Color(0XFF4CAF93),
         elevation: 0, // Remove shadow to match profile screen
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {
-              // Notifications button action
-            },
+          // Animated notification bell
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Animated bell icon 
+                RotationTransition(
+                  turns: _notificationsEnabled ? _bellAnimation : const AlwaysStoppedAnimation(0),
+                  child: IconButton(
+                    icon: Icon(
+                      _notificationsEnabled 
+                          ? Icons.notifications_active
+                          : Icons.notifications_off_outlined,
+                      color: Colors.white,
+                    ),
+                    onPressed: _toggleNotifications,
+                    tooltip: _notificationsEnabled 
+                        ? 'Disable notifications' 
+                        : 'Enable notifications',
+                  ),
+                ),
+                
+                // Indicator dot when notifications are enabled
+                if (_notificationsEnabled)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),

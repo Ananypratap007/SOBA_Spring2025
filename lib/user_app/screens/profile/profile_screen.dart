@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:soba_app/config/firebase_config.dart';
+import 'package:soba_app/config/firebase_storage_helper.dart';
 import 'package:soba_app/shared/widgets/custom_form_fields.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -26,10 +29,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  final _imagePicker = ImagePicker();
+  File? _selectedImage;
   Map<String, dynamic>? _userData;
   Map<String, dynamic>? _orgData;
   bool _isLoading = true;
   bool _wellnessCheckEnabled = false;
+  bool _isUploadingImage = false;
   
   // Expansion state for sections
   bool _isAccountInfoExpanded = false;
@@ -453,6 +459,183 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  // Method to pick and upload profile image
+  Future<void> _pickAndUploadImage() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF003366),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            const Text(
+              'Change Profile Picture',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Camera option
+                _buildImageSourceOption(
+                  icon: Icons.camera_alt,
+                  label: 'Camera',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _getImageAndUpload(ImageSource.camera);
+                  },
+                ),
+                // Gallery option
+                _buildImageSourceOption(
+                  icon: Icons.photo_library,
+                  label: 'Gallery',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _getImageAndUpload(ImageSource.gallery);
+                  },
+                ),
+                // Remove photo option (if there's already a profile photo)
+                if (_userData?['photoUrl'] != null)
+                  _buildImageSourceOption(
+                    icon: Icons.delete,
+                    label: 'Remove',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _removeProfilePhoto();
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget for image source option
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0XFF4CAF93),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 32),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Method to get image from camera or gallery and upload
+  Future<void> _getImageAndUpload(ImageSource source) async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 75, // Reduce image quality for faster uploads
+      );
+      
+      if (pickedFile == null) return;
+      
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+        _isUploadingImage = true;
+      });
+      
+      // Upload the image to Firebase Storage
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
+      
+      final imageUrl = await FirebaseStorageHelper.uploadProfileImage(
+        file: _selectedImage!,
+        context: context,
+      );
+      
+      // Update the user's photoUrl in Firestore
+      await _firestore.collection('users').doc(user.uid).update({
+        'photoUrl': imageUrl,
+      });
+      
+      // Update local state
+      setState(() {
+        _userData?['photoUrl'] = imageUrl;
+        _isUploadingImage = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated successfully!')),
+        );
+      }
+    } catch (e) {
+      setState(() => _isUploadingImage = false);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating profile picture: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  // Method to remove profile photo
+  Future<void> _removeProfilePhoto() async {
+    try {
+      setState(() => _isUploadingImage = true);
+      
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
+      
+      // Update the user's photoUrl in Firestore to null or a default placeholder
+      await _firestore.collection('users').doc(user.uid).update({
+        'photoUrl': null, // Or use a default placeholder URL
+      });
+      
+      // Update local state
+      setState(() {
+        _userData?['photoUrl'] = null;
+        _isUploadingImage = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture removed')),
+        );
+      }
+    } catch (e) {
+      setState(() => _isUploadingImage = false);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error removing profile picture: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -481,15 +664,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 47,
-                        backgroundImage: NetworkImage(
-                          _userData?['photoUrl'] ??
-                              'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                        ),
+                    GestureDetector(
+                      onTap: _pickAndUploadImage,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.white,
+                            child: _isUploadingImage
+                                ? const CircularProgressIndicator(color: Color(0XFF4CAF93))
+                                : CircleAvatar(
+                                    radius: 47,
+                                    backgroundImage: NetworkImage(
+                                      _userData?['photoUrl'] ??
+                                          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                    ),
+                                  ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: const Color(0XFF4CAF93),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 15),
