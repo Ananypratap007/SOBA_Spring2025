@@ -38,18 +38,22 @@ class SelfieReviewScreen extends StatelessWidget {
                           ),
                         ),
                         child: ClipOval(
-                          child: Image.file(
-                            File(imagePath),
-                            fit: BoxFit.cover,
-                            width: 180,
-                            height: 180,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.account_circle,
-                                size: 150,
-                                color: Colors.white70,
-                              );
-                            },
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationY(3.14159), // Flip horizontally (PI radians)
+                            child: Image.file(
+                              File(imagePath),
+                              fit: BoxFit.cover,
+                              width: 180,
+                              height: 180,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.account_circle,
+                                  size: 150,
+                                  color: Colors.white70,
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),

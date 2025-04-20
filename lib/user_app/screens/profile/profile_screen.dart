@@ -673,13 +673,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: Colors.white,
                             child: _isUploadingImage
                                 ? const CircularProgressIndicator(color: Color(0XFF4CAF93))
-                                : CircleAvatar(
-                                    radius: 47,
-                                    backgroundImage: NetworkImage(
-                                      _userData?['photoUrl'] ??
-                                          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                                    ),
-                                  ),
+                                : _userData?['photoUrl'] != null
+                                    ? CircleAvatar(
+                                        radius: 47,
+                                        backgroundImage: NetworkImage(_userData!['photoUrl']),
+                                      )
+                                    : const CircleAvatar(
+                                        radius: 47,
+                                        backgroundColor: Color(0XFF4CAF93),
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 50,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                           ),
                           Positioned(
                             bottom: 0,

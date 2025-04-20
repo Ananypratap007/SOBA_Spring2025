@@ -15,6 +15,12 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
   late AnimationController _animationController;
   late Animation<double> _animation;
   
+  // For emergency confirmation
+  bool _isEmergencyDialogOpen = false;
+  double _sliderValue = 0.0;
+  int _confirmCountdown = 0;
+  Timer? _countdownTimer;
+  
   @override
   void initState() {
     super.initState();
@@ -27,6 +33,9 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
       curve: Curves.easeInOut,
     );
     _animationController.repeat(reverse: true);
+    
+    // Start the timer automatically
+    startTimer();
   }
 
   void startTimer() {
@@ -40,8 +49,257 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
         });
       } else {
         timer.cancel();
+        // Show notification when timer expires
+        _showTimerExpiredDialog();
       }
     });
+  }
+
+  void _showTimerExpiredDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: const [
+              Icon(Icons.warning_amber_rounded, color: Color(0XFF4CAF93)),
+              SizedBox(width: 10),
+              Text('Status Check Needed'),
+            ],
+          ),
+          content: const Text('Please check in to confirm you are safe and well.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _remaining = const Duration(minutes: 45, seconds: 0);
+                });
+                startTimer();
+              },
+              child: const Text('Check In Now', style: TextStyle(color: Color(0XFF4CAF93))),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
+  void _showEmergencyConfirmationDialog() {
+    // Reset state variables
+    _sliderValue = 0.0;
+    _confirmCountdown = 0;
+    _isEmergencyDialogOpen = true;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red.shade700, size: 28),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'EMERGENCY',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Show countdown if in progress
+                  if (_confirmCountdown > 0)
+                    Column(
+                      children: [
+                        Text(
+                          'Emergency will be triggered in $_confirmCountdown',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Tap anywhere to cancel',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        const Text(
+                          'Slide to confirm emergency',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 20),
+                        // Slider with custom track
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Slider background
+                            Container(
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.all(5),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 65),
+                                  Expanded(
+                                    child: Text(
+                                      'SLIDE RIGHT TO CONFIRM',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.red.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Filled slider portion based on value
+                            Positioned(
+                              left: 0,
+                              child: Container(
+                                height: 80,
+                                width: MediaQuery.of(context).size.width * 0.7 * _sliderValue,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.red.shade300, Colors.red.shade700],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(40),
+                                ),
+                              ),
+                            ),
+                            // Slider thumb
+                            Positioned(
+                              left: (_sliderValue * (MediaQuery.of(context).size.width * 0.7 - 70)),
+                              child: Container(
+                                height: 70,
+                                width: 70,
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade700,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                            // Invisible slider for interactions
+                            Slider(
+                              value: _sliderValue,
+                              onChanged: (value) {
+                                setState(() {
+                                  _sliderValue = value;
+                                });
+                                
+                                // When slider reaches the end
+                                if (value >= 0.95) {
+                                  setState(() {
+                                    _confirmCountdown = 3;
+                                  });
+                                  
+                                  // Start countdown
+                                  _startCountdown(dialogContext, setState);
+                                }
+                              },
+                              thumbColor: Colors.transparent,
+                              activeColor: Colors.transparent,
+                              inactiveColor: Colors.transparent,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    _cancelCountdown();
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) {
+      _isEmergencyDialogOpen = false;
+      _cancelCountdown();
+    });
+  }
+  
+  void _startCountdown(BuildContext dialogContext, StateSetter setState) {
+    // Cancel any existing timer
+    _cancelCountdown();
+    
+    // Start new countdown timer
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_confirmCountdown > 1) {
+        setState(() {
+          _confirmCountdown--;
+        });
+      } else {
+        _cancelCountdown();
+        
+        // Only proceed if dialog is still open
+        if (_isEmergencyDialogOpen) {
+          Navigator.of(dialogContext).pop();
+          _triggerEmergency();
+        }
+      }
+    });
+  }
+  
+  void _cancelCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+  }
+  
+  void _triggerEmergency() {
+    // Actual emergency handling would go here
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Emergency services have been notified'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 5),
+      ),
+    );
+    
+    // In a real app, this would contact emergency services or trigger 
+    // appropriate emergency protocols
   }
 
   String formatDuration(Duration d) {
@@ -54,6 +312,7 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _timer?.cancel();
+    _countdownTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
@@ -61,354 +320,175 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Page background
-      backgroundColor: const Color(0XFF4CAF93),
-
-      // AppBar with matching color scheme
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Visit',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Color(0XFF4CAF93),
-          ),
-        ),
-        backgroundColor: const Color(0XFF4CAF93),
-        elevation: 0, // Remove shadow to match profile screen
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.white),
-            onPressed: () {
-              // Help button action
-            },
-          ),
-        ],
-      ),
-
+      // Full blue background
+      backgroundColor: const Color(0xFF003366),
+      
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
-          color: Color(0XFF4CAF93),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF003366), Color(0xFF002244)],
+          ),
         ),
-        child: Column(
-          children: [
-            // Top spacing to match profile layout
-            const SizedBox(height: 10),
-            
-            // Main content area
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF003366),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Column(
+              children: [
+                // Current Visit Row - Simplified
+                Row(
+                  children: [
+                    const Icon(Icons.person_pin, color: Color(0xFF5DBEA4), size: 24),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Brad Miller, Age: 47',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.exit_to_app, color: Colors.white, size: 22),
+                      onPressed: () {
+                        context.go('/');
+                      },
+                    ),
+                  ],
                 ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+                
+                const SizedBox(height: 16),
+                
+                // Status Timer - Compact Version
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: const Color(0xFF5DBEA4).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // ===================
-                      // CURRENT VISIT
-                      // ===================
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: const [
-                                Icon(Icons.person_pin, color: Colors.white, size: 28),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Current Visit',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0XFF4CAF93).withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.person, color: Colors.white70, size: 18),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Recipient: Brad Miller',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.cake, color: Colors.white70, size: 18),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Age: 47',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                      const Icon(
+                        Icons.access_alarm,
+                        color: Color(0xFF5DBEA4),
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        formatDuration(_remaining),
+                        style: const TextStyle(
+                          fontSize: 32,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
                         ),
                       ),
-
-                      // ===================
-                      // EMERGENCY
-                      // ===================
-                      GestureDetector(
-                        onTap: () {
-                          // Handle emergency tap here
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _remaining = const Duration(minutes: 45, seconds: 0);
+                          });
+                          startTimer();
                         },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade700,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0XFF4CAF93),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              FadeTransition(
-                                opacity: _animation,
-                                child: const Icon(
-                                  Icons.warning_amber_rounded,
-                                  color: Colors.white,
-                                  size: 48,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'EMERGENCY?',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Tap Here',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          minimumSize: const Size(40, 36),
                         ),
-                      ),
-
-                      // ===================
-                      // STATUS CHECK
-                      // ===================
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.schedule, color: Colors.white, size: 22),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Status Check',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            // Timer with alarm icon
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: const Color(0XFF4CAF93).withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.access_alarm,
-                                    color: Colors.white,
-                                    size: 34,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    formatDuration(_remaining),
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // "Check in" button
-                            SizedBox(
-                              height: 42,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _remaining = const Duration(minutes: 45, seconds: 0);
-                                  });
-                                  startTimer();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0XFF4CAF93),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 0,
-                                  ),
-                                  elevation: 3,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Check In',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // ===================
-                      // END VISIT
-                      // ===================
-                      GestureDetector(
-                        onTap: () {
-                          context.go('/');
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: const Color(0XFF4CAF93), // Gray-blue color
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.exit_to_app,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                'End Visit',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                        child: const Text(
+                          'Check In',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
+                
+                const SizedBox(height: 16),
+                
+                // Emergency Button - Most Prominent
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Show slide-to-confirm dialog
+                      _showEmergencyConfirmationDialog();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.red.shade700, Colors.red.shade900],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.shade900.withOpacity(0.3),
+                            spreadRadius: 1,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FadeTransition(
+                            opacity: _animation,
+                            child: const Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'EMERGENCY?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 28,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap Here',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

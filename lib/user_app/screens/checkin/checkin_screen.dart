@@ -20,9 +20,9 @@ class _CheckinScreenState extends State<CheckinScreen> {
   String get _pageTitle {
     switch (_state) {
       case CheckinState.selfie:
-        return 'Checking in';
+        return 'Checking-In';
       case CheckinState.selfieConfirmation:
-        return 'Checking in';
+        return 'Checking-In';
       case CheckinState.vehicle:
         return 'Vehicle Photo';
       case CheckinState.vehicleReview:

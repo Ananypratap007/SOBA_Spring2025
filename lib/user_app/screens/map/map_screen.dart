@@ -110,14 +110,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         ),
         backgroundColor: const Color(0XFF4CAF93),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              // Search action
-            },
-          ),
-        ],
+        actions: [],
       ),
       
       body: Container(
