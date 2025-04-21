@@ -43,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isOrgInfoExpanded = false;
   bool _isSettingsExpanded = false;
   bool _connected = false; // Add this variable to track device connection status
+  bool _isVehicleInfoExpanded = false; // Add a new state variable for the vehicle section
 
   @override
   void initState() {
@@ -636,6 +637,206 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Helper: get vehicles stored with keys starting with "vehicle"
+  List<MapEntry<String, dynamic>> _getUserVehicles() {
+    if (_userData == null) return [];
+    final vehicles = _userData!.entries.where((entry) => entry.key.startsWith("vehicle")).toList();
+    vehicles.sort((a, b) {
+      int aNum = int.tryParse(a.key.replaceFirst("vehicle", "")) ?? 0;
+      int bNum = int.tryParse(b.key.replaceFirst("vehicle", "")) ?? 0;
+      return aNum.compareTo(bNum);
+    });
+    return vehicles;
+  }
+
+  // Dialog to add or edit a vehicle.
+  Future<void> _showVehicleDialog({String? vehicleKey, Map<String, dynamic>? vehicleData}) async {
+    final isEditing = vehicleKey != null;
+    final licenseController = TextEditingController(text: vehicleData?['licensePlate'] ?? '');
+    final makeController = TextEditingController(text: vehicleData?['make'] ?? '');
+    final modelController = TextEditingController(text: vehicleData?['model'] ?? '');
+    final colorController = TextEditingController(text: vehicleData?['color'] ?? '');
+  
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isEditing ? 'Edit Vehicle' : 'Add Vehicle'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: licenseController,
+                decoration: const InputDecoration(labelText: 'License Plate #'),
+              ),
+              TextField(
+                controller: makeController,
+                decoration: const InputDecoration(labelText: 'Make'),
+              ),
+              TextField(
+                controller: modelController,
+                decoration: const InputDecoration(labelText: 'Model'),
+              ),
+              TextField(
+                controller: colorController,
+                decoration: const InputDecoration(labelText: 'Color'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final license = licenseController.text.trim();
+              final make = makeController.text.trim();
+              final model = modelController.text.trim();
+              final color = colorController.text.trim();
+              
+              if (license.isEmpty || make.isEmpty || model.isEmpty || color.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('All fields are required')),
+                );
+                return;
+              }
+              
+              // Determine key to update: If not editing, assign next available vehicle key.
+              String keyToUpdate = vehicleKey ?? '';
+              if (!isEditing) {
+                final currentCount = _getUserVehicles().length;
+                keyToUpdate = 'vehicle${currentCount + 1}';
+              }
+              
+              final vehicleMap = {
+                'licensePlate': license,
+                'make': make,
+                'model': model,
+                'color': color,
+              };
+              
+              final user = _auth.currentUser;
+              if (user != null) {
+                await _firestore.collection('users').doc(user.uid).update({
+                  keyToUpdate: vehicleMap,
+                });
+                setState(() {
+                  _userData?[keyToUpdate] = vehicleMap;
+                });
+                
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Vehicle ${isEditing ? 'updated' : 'added'} successfully!')),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteVehicle(String vehicleKey) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    
+    // Delete the specific vehicle key from Firestore.
+    await _firestore.collection('users').doc(user.uid).update({
+      vehicleKey: FieldValue.delete(),
+    });
+    
+    // Remove it locally.
+    setState(() {
+      _userData?.remove(vehicleKey);
+    });
+    
+    // Re-index the remaining vehicles.
+    final vehicles = _getUserVehicles()
+        .where((entry) => entry.value is Map<String, dynamic>)
+        .toList();
+    
+    // Create a new mapping with consecutive keys.
+    Map<String, dynamic> newVehicles = {};
+    for (int i = 0; i < vehicles.length; i++) {
+      newVehicles['vehicle${i + 1}'] = vehicles[i].value;
+    }
+    
+    // Update Firestore document with the new mapping.
+    // This update will overwrite the existing vehicle fields.
+    await _firestore.collection('users').doc(user.uid).update(newVehicles);
+    
+    // Update local _userData: remove all old vehicle keys and add the reindexed ones.
+    setState(() {
+      _userData?.removeWhere((key, value) => key.startsWith('vehicle'));
+      _userData?.addAll(newVehicles);
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Vehicle deleted and vehicles reindexed')),
+    );
+  }
+
+  Widget _buildVehicleTile(String vehicleKey, Map<String, dynamic> vehicleData) {
+    final String make = vehicleData['make'] ?? 'Unknown';
+    final String model = vehicleData['model'] ?? 'Unknown';
+    final String licensePlate = vehicleData['licensePlate'] ?? 'N/A';
+    final String color = vehicleData['color'] ?? 'N/A';
+    
+    return Card(
+      color: Colors.transparent,
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title displays Make and Model
+            Text(
+              "$make $model",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // License Plate field
+            Text(
+              "License Plate #: $licensePlate",
+              style: const TextStyle(color: Colors.white),
+            ),
+            // Color field
+            Text(
+              "Color: $color",
+              style: const TextStyle(color: Colors.white),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Edit button
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white70, size: 20),
+                  onPressed: () {
+                    _showVehicleDialog(vehicleKey: vehicleKey, vehicleData: vehicleData);
+                  },
+                ),
+                // Delete button
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.white70, size: 20),
+                  onPressed: () {
+                    _deleteVehicle(vehicleKey);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -673,20 +874,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: Colors.white,
                             child: _isUploadingImage
                                 ? const CircularProgressIndicator(color: Color(0XFF4CAF93))
-                                : _userData?['photoUrl'] != null
-                                    ? CircleAvatar(
-                                        radius: 47,
-                                        backgroundImage: NetworkImage(_userData!['photoUrl']),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 47,
-                                        backgroundColor: Color(0XFF4CAF93),
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 50,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                : CircleAvatar(
+                                    radius: 47,
+                                    backgroundImage: NetworkImage(
+                                      _userData?['photoUrl'] ??
+                                          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                                    ),
+                                  ),
                           ),
                           Positioned(
                             bottom: 0,
@@ -875,6 +1069,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ],
+
+                            const SizedBox(height: 16),
+                            
+                            // New Vehicle Information Section
+                            _buildExpandableSection(
+                              title: 'Vehicle Information',
+                              isExpanded: _isVehicleInfoExpanded,
+                              onToggle: () => setState(() => _isVehicleInfoExpanded = !_isVehicleInfoExpanded),
+                              children: [
+                                Column(
+                                  children: [
+                                    ..._getUserVehicles()
+                                        .where((entry) => entry.value is Map<String, dynamic>)
+                                        .map((entry) => _buildVehicleTile(entry.key, entry.value as Map<String, dynamic>)),
+                                    if (_getUserVehicles().length < 3)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            _showVehicleDialog();
+                                          },
+                                          icon: const Icon(Icons.add, size: 20),
+                                          label: const Text('Add Vehicle'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0XFF4CAF93),
+                                            foregroundColor: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
 
                             const SizedBox(height: 16),
                             // Settings Dropdown
