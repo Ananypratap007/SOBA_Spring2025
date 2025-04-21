@@ -166,37 +166,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Future<void> _loadUserData() async {
+  //   try {
+  //     final user = _auth.currentUser;
+  //     if (user != null) {
+  //       final userDoc =
+  //           await _firestore.collection('users').doc(user.uid).get();
+  //       if (userDoc.exists) {
+  //         setState(() => _userData = userDoc.data());
+
+  //         if (_userData?['orgId'] != null) {
+  //           final orgQuery = await _firestore
+  //               .collection('organizations')
+  //               .doc(_userData!['orgId'])
+  //               .get();
+  //           if (orgQuery.exists) {
+  //             setState(() => _orgData = orgQuery.data() as Map<String, dynamic>);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error loading data: ${e.toString()}')),
+  //     );
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() => _isLoading = false);
+  //     }
+  //   }
+  // }
+
   Future<void> _loadUserData() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        final userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          setState(() => _userData = userDoc.data());
+  try {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        setState(() => _userData = userDoc.data());
 
-          if (_userData?['organizationId'] != null) {
-            final orgQuery = await _firestore
-                .collection('organizations')
-                .doc(_userData!['organizationId'])
-                .get();
+        final orgId = _userData?['orgId'];
+        if (orgId != null) {
+          final orgDocSnap = await _firestore
+    .collection('organizations')
+    .where('orgId', isEqualTo: _userData?['orgId'])
+    .limit(1)
+    .get();
 
-            if (orgQuery.exists) {
-              setState(() => _orgData = orgQuery.data());
-            }
-          }
+if (orgDocSnap.docs.isNotEmpty) {
+  setState(() => _orgData = orgDocSnap.docs.first.data());
+}
+
         }
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading data: ${e.toString()}')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error loading data: ${e.toString()}')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
   }
+}
+
+
+  // void _loadOrgData() async {
+  //   if (_userData != null && _userData!['orgId'] != null) {
+  //     final orgSnapshot = await _firestore
+  //         .collection('organizations')
+  //         .doc(_userData!['orgId'])
+  //         .get();
+  //     if (orgSnapshot.exists) {
+  //       setState(() {
+  //         _orgData = orgSnapshot.data() as Map<String, dynamic>;
+  //       });
+  //     }
+  //   }
+  // }
 
   void _showEditDialog(String field, String currentValue, String label) async {
     final TextEditingController controller =
@@ -956,6 +1002,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _buildInfoTile('Email', _userData?['email']),
                                 _buildInfoTile('Phone', _userData?['phone']),
                                 _buildInfoTile('Password', '••••••', hasArrow: true),
+                                // if (_userData?['orgId'] != null && _orgData != null)
+                                  _buildInfoTile('Organization', toTitleCase(_orgData?['name']) ?? 'N/A'),
                               ],
                             ),
                             

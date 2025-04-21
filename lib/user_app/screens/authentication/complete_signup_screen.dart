@@ -22,6 +22,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
   Uint8List? _profileImage;
   final _formKey = GlobalKey<FormState>();
   final _orgNameController = TextEditingController();
+  final _orgIdController = TextEditingController();
   final _raceController = TextEditingController();
   final _genderController = TextEditingController();
   final _eyeColorController = TextEditingController();
@@ -308,7 +309,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
           .collection('users')
           .doc(user.uid)
           .update({
-        'orgName': _orgNameController.text.trim(),
+        'orgId': _orgIdController.text.trim(),
         'role': _roleController.text.trim(),
         'race': _raceController.text.trim(),
         'gender': _genderController.text.trim(),
@@ -318,7 +319,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
         'weight': _weightController.text.trim(),
         'isAdmin': false,
         'age': _ageController.text.trim(),
-        'profileImage': profileImageUrl, // Store imgBB URL
+        'profileImage': profileImageUrl,
         'profileCompleted': true,
       });
 
@@ -353,6 +354,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
   void dispose() {
     _raceController.dispose();
     _orgNameController.dispose();
+    _orgIdController.dispose();
     _genderController.dispose();
     _eyeColorController.dispose();
     _hairColorController.dispose();
@@ -433,6 +435,7 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
               const SizedBox(height: 20),
 
               // Affiliated Organization TextField
+              /*
               TextField(
                 controller: _orgNameController,
                 decoration: InputDecoration(
@@ -449,6 +452,36 @@ class _CompleteSignupScreenState extends State<CompleteSignupScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Color(0xFF4CAF93), width: 2),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              */
+    
+
+              // Organization ID TextField
+              TextField(
+                controller: _orgIdController,
+                decoration: InputDecoration(
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  labelText: 'Organization ID',
+                  hintText: 'Enter your organization ID',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: const Color(0xFF4CAF93), width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
