@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -20,7 +22,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   String? _selectedRisk;
-  String? _selectedResponder;
+  Map<String, String>? _selectedResponder;
   String? _selectedUrgency;
 
   final List<Map<String, dynamic>> riskLevels = [
@@ -42,6 +44,49 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
     {"name": "Jackie Chan-Lee"},
     {"name": "Abraham Monroe"},
   ];
+
+  List<Map<String, String>> _adminResponders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAdminResponders();
+  }
+
+  Future<void> _loadAdminResponders() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      final userData = userDoc.data()!;
+      final activeOrg = userData['orgId'] ?? userData['organizationId'];
+      if (activeOrg != null) {
+        final query1 = await FirebaseFirestore.instance
+            .collection('users')
+            .where('orgId', isEqualTo: activeOrg)
+            .get();
+        final query2 = await FirebaseFirestore.instance
+            .collection('users')
+            .where('organizationId', isEqualTo: activeOrg)
+            .get();
+        final docs = [...query1.docs, ...query2.docs];
+        final uniqueDocs = {
+          for (var doc in docs)
+            if (doc.id != currentUser.uid) doc.id: doc
+        }.values.toList();
+        setState(() {
+          _adminResponders = uniqueDocs.map<Map<String, String>>((doc) {
+            final data = doc.data();
+            return {
+              'uid': doc.id,
+              'name': data['name'] as String,
+            };
+          }).toList();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,27 +116,23 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                 const Spacer(),
                 SizedBox(
                   width: 240,
-                  child: DropdownButtonFormField<String>(
-                    value:
-                        responders.any((r) => r["name"] == _selectedResponder)
-                            ? _selectedResponder
-                            : null,
+                  child: DropdownButtonFormField<Map<String, String>>(
+                    value: _adminResponders.contains(_selectedResponder) ? _selectedResponder : null,
                     isExpanded: true,
                     decoration: _dropdownDecoration("Select Responder"),
                     hint: const Text("Select Responder"),
-                    items: responders.map((responder) {
-                      return DropdownMenuItem<String>(
-                        value: responder["name"],
+                    items: _adminResponders.map((responder) {
+                      return DropdownMenuItem<Map<String, String>>(
+                        value: responder,
                         child: Row(
                           children: [
                             const SizedBox(width: 6),
-                            Text(responder["name"]),
+                            Text(responder['name']!),
                           ],
                         ),
                       );
                     }).toList(),
-                    onChanged: (value) =>
-                        setState(() => _selectedResponder = value),
+                    onChanged: (value) => setState(() => _selectedResponder = value),
                   ),
                 ),
               ],
@@ -250,7 +291,29 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // Build a job/visit map from the form fields:
+                      final jobData = {
+                        'clientName': _nameController.text.trim(),
+                        'gender': _genderController.text.trim(),
+                        'age': _ageController.text.trim(),
+                        'risk': _selectedRisk,
+                        'address': _addressController.text.trim(),
+                        'city': _cityController.text.trim(),
+                        'state': _stateController.text.trim(),
+                        'urgency': _selectedUrgency,
+                        'description': _notesController.text.trim(),
+                        // Use responderId and responderName (if _selectedResponder is not null)
+                        'responderId': _selectedResponder?['uid'],
+                        'responder': _selectedResponder?['name'],
+                        'createdAt': DateTime.now(),
+                        'status': 'pending',
+                      };
+
+                      // Save the document in Firestore (in a "visits" or "jobs" collection)
+                      await FirebaseFirestore.instance.collection('visits').add(jobData);
+
+                      // Optionally show a confirmation dialog.
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -259,8 +322,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           title: const Text('Success'),
-                          content: const Text(
-                              'Your request has been sent successfully!'),
+                          content: const Text('Your request has been sent successfully!'),
                           actions: [
                             TextButton(
                               onPressed: () {
