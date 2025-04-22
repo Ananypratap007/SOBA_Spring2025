@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -17,42 +19,63 @@ class TilesScreen extends StatefulWidget {
 
 class _TilesScreenState extends State<TilesScreen> {
   final MapController _mapController = MapController();
-
-  final DraggableScrollableController _sheetController =
-      DraggableScrollableController();
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
 
   static const LatLng _dfLocation = LatLng(35.2043, -97.4453);
   static const double _dfZoom = 9.0;
 
-  final List<Responder> responders = [
-    Responder(
-      name: 'Helena Furman',
-      lat: 35.138056,
-      lng: -97.369444,
-      loc: "Noble, OK",
-      status: 'En Route',
-      image:
-          'https://plus.unsplash.com/premium_photo-1689551670902-19b441a6afde?w=500&auto=format&fit=crop&q=60',
-    ),
-    Responder(
-      name: 'Jack Moore',
-      lat: 35.4689,
-      lng: -97.5195,
-      loc: "Oklahoma City, OK",
-      status: 'On Site',
-      image:
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop',
-    ),
-    Responder(
-      name: 'Linda Smith',
-      lat: 35.0137,
-      lng: -97.3611,
-      loc: "Purcell, OK",
-      status: 'Returning',
-      image:
-          'https://images.unsplash.com/photo-1742504886132-dbdc985233b1?w=500&auto=format&fit=crop&q=60',
-    ),
-  ];
+  List<Responder> responders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadResponders();
+  }
+
+  Future<void> _loadResponders() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+    // Get current user's document
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      final userData = userDoc.data()!;
+      // Get active organization id from either field
+      final activeOrg = userData['orgId'] ?? userData['organizationId'];
+      if (activeOrg != null) {
+        // Query for users with 'orgId' equal to activeOrg
+        final query1 = await FirebaseFirestore.instance
+            .collection('users')
+            .where('orgId', isEqualTo: activeOrg)
+            .get();
+        // Also query for users with 'organizationId' equal to activeOrg
+        final query2 = await FirebaseFirestore.instance
+            .collection('users')
+            .where('organizationId', isEqualTo: activeOrg)
+            .get();
+        // Merge results (avoid duplicates)
+        final docs = [...query1.docs, ...query2.docs];
+        // Remove duplicates by document ID and filter out the current user's document
+        final uniqueDocs = {
+          for (var doc in docs)
+            if (doc.id != currentUser.uid) doc.id: doc
+        }.values.toList();
+        setState(() {
+          responders = uniqueDocs.map((doc) {
+            final data = doc.data();
+            GeoPoint geoPoint = data['coordinates'];
+            return Responder(
+              name: data['name'] ?? 'Unknown',
+              lat: geoPoint.latitude,
+              lng: geoPoint.longitude,
+              loc: data['location'] ?? 'Unknown location',
+              status: data['location'] ?? '',
+              image: data['profileImage'] ?? 'https://via.placeholder.com/150',
+            );
+          }).toList();
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -80,8 +103,7 @@ class _TilesScreenState extends State<TilesScreen> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.fromLTRB(
-                    dfInsets, 2.5 * dfInsets, dfInsets, dfInsets),
+                padding: const EdgeInsets.fromLTRB(dfInsets, 2.5 * dfInsets, dfInsets, dfInsets),
                 color: blue,
                 child: Row(
                   children: [
@@ -93,7 +115,7 @@ class _TilesScreenState extends State<TilesScreen> {
                       child: const Icon(Icons.my_location, color: blue),
                     ),
                     const Spacer(),
-                    _SearchBar(blue),
+                    const _SearchBar(blue),
                   ],
                 ),
               ),
@@ -107,65 +129,28 @@ class _TilesScreenState extends State<TilesScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: const ['a', 'b', 'c'],
                       userAgentPackageName: 'com.soba.app',
                     ),
                     MarkerLayer(
-                      markers: responders
-                          .map((responder) => Marker(
-                                point: LatLng(responder.lat, responder.lng),
-                                width: 50,
-                                height: 50,
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    String locationName = responder.loc;
-                                    try {
-                                      List<Placemark> placemarks =
-                                          await placemarkFromCoordinates(
-                                        responder.lat,
-                                        responder.lng,
-                                      );
-                                      if (placemarks.isNotEmpty) {
-                                        Placemark place = placemarks.first;
-                                        locationName =
-                                            "${place.locality}, ${place.administrativeArea}";
-                                      }
-                                    } catch (_) {}
-
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text(responder.name),
-                                        content: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text("Status: ${responder.status}"),
-                                            Text(
-                                                "Location: $locationName \n${responder.lat}, ${responder.lng}"),
-                                          ],
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: const Text("Close"),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  child: CircleAvatar(
-                                    radius: dfRadius / 1.15,
-                                    backgroundImage:
-                                        NetworkImage(responder.image),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
+                      markers: responders.map<Marker>((responder) {
+                        return Marker(
+                          point: LatLng(responder.lat, responder.lng),
+                          width: 50,
+                          height: 50,
+                          child: GestureDetector(
+                            onTap: () {
+                              _mapController.move(LatLng(responder.lat, responder.lng), _dfZoom + 5);
+                              // Optionally, show details in a dialog
+                            },
+                            child: CircleAvatar(
+                              radius: dfRadius / 1.15,
+                              backgroundImage: NetworkImage(responder.image),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ),
@@ -192,9 +177,7 @@ class _TilesScreenState extends State<TilesScreen> {
                   itemBuilder: (context, index) => _ResponderTile(
                     responder: responders[index],
                     onTap: () {
-                      _mapController.move(
-                          LatLng(responders[index].lat, responders[index].lng),
-                          _dfZoom + 5);
+                      _mapController.move(LatLng(responders[index].lat, responders[index].lng), _dfZoom + 5);
                     },
                   ),
                 ),
@@ -215,13 +198,14 @@ class Responder {
   final String status;
   final String image;
 
-  Responder(
-      {required this.name,
-      required this.lat,
-      required this.lng,
-      required this.loc,
-      required this.status,
-      required this.image});
+  Responder({
+    required this.name,
+    required this.lat,
+    required this.lng,
+    required this.loc,
+    required this.status,
+    required this.image,
+  });
 }
 
 class _ResponderTile extends StatefulWidget {
@@ -245,8 +229,7 @@ class _ResponderTileState extends State<_ResponderTile> {
 
   Future<void> _fetchLocationName() async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          widget.responder.lat, widget.responder.lng);
+      List<Placemark> placemarks = await placemarkFromCoordinates(widget.responder.lat, widget.responder.lng);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         setState(() {
@@ -266,8 +249,7 @@ class _ResponderTileState extends State<_ResponderTile> {
       onTap: widget.onTap,
       borderRadius: BorderRadius.circular(dfRadius),
       child: Card(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(dfRadius)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(dfRadius)),
         color: blue,
         child: Padding(
           padding: const EdgeInsets.all(dfInsets),
@@ -283,18 +265,11 @@ class _ResponderTileState extends State<_ResponderTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.responder.name,
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                     Text('Status: ${widget.responder.status}',
-                        style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: teal)),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: teal)),
                     Text('Location: $locationName',
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.white70)),
+                        style: const TextStyle(fontSize: 12, color: Colors.white70)),
                   ],
                 ),
               ),
