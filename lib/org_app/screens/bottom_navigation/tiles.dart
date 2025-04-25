@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import 'EmergencyDetailsScreen.dart'; // Ensure this file exists
 
 const double dfInsets = 20;
 const double dfRadius = 20;
@@ -56,14 +57,15 @@ class _TilesScreenState extends State<TilesScreen> {
         final docs = [...query1.docs, ...query2.docs];
         // Remove duplicates by document ID and filter out the current user's document
         final uniqueDocs = {
-          for (var doc in docs)
-            if (doc.id != currentUser.uid) doc.id: doc
+          for (var doc in docs) if (doc.id != currentUser.uid) doc.id: doc
         }.values.toList();
         setState(() {
           responders = uniqueDocs.map((doc) {
             final data = doc.data();
             GeoPoint geoPoint = data['coordinates'];
             return Responder(
+              id: doc.id,
+              visitId: data['visitId'] ?? '',
               name: data['name'] ?? 'Unknown',
               lat: geoPoint.latitude,
               lng: geoPoint.longitude,
@@ -191,6 +193,8 @@ class _TilesScreenState extends State<TilesScreen> {
 }
 
 class Responder {
+  final String id;
+  final String visitId;
   final String name;
   final double lat;
   final double lng;
@@ -199,6 +203,8 @@ class Responder {
   final String image;
 
   Responder({
+    required this.id,
+    this.visitId = '',
     required this.name,
     required this.lat,
     required this.lng,
@@ -229,8 +235,8 @@ class _ResponderTileState extends State<_ResponderTile> {
 
   Future<void> _fetchLocationName() async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          widget.responder.lat, widget.responder.lng);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(widget.responder.lat, widget.responder.lng);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         setState(() {
@@ -246,32 +252,28 @@ class _ResponderTileState extends State<_ResponderTile> {
 
   @override
   Widget build(BuildContext context) {
-    // Use the responder's status if available; otherwise, default to "INACTIVE".
-    final String displayStatus = (widget.responder.status.isNotEmpty)
-        ? widget.responder.status.toUpperCase()
-        : "INACTIVE";
-
-    // Determine the status text color.
-    Color statusColor;
-    if (displayStatus == "ON SCENE") {
-      statusColor = Colors.green; // "On Scene" in green
-    } else if (displayStatus == "EMERGENCY") {
-      statusColor = Colors.white; // "Emergency" text in red
-    } else {
-      statusColor = Colors.white; // "Inactive" and "Active" in white
-    }
-
-    // If emergency, use a red card background; otherwise use blue.
-    Color cardColor = (displayStatus == "EMERGENCY") ? Colors.red : blue;
-
     return InkWell(
-      onTap: widget.onTap,
+      onTap: () {
+        // If emergency, navigate to EmergencyDetailsScreen; otherwise, call the provided onTap.
+        if (widget.responder.status.toUpperCase() == "EMERGENCY") {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => EmergencyDetailsScreen(
+              responderId: widget.responder.id,
+              visitId: widget.responder.visitId,
+            ),
+          ));
+        } else {
+          if (widget.onTap != null) {
+            widget.onTap!();
+          }
+        }
+      },
       borderRadius: BorderRadius.circular(dfRadius),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(dfRadius),
         ),
-        color: cardColor,
+        color: (widget.responder.status.toUpperCase() == "EMERGENCY") ? Colors.red : blue,
         child: Padding(
           padding: const EdgeInsets.all(dfInsets),
           child: Row(
@@ -285,7 +287,7 @@ class _ResponderTileState extends State<_ResponderTile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Display the responder's name.
+                    // Responder's name.
                     Text(
                       widget.responder.name,
                       style: const TextStyle(
@@ -294,16 +296,18 @@ class _ResponderTileState extends State<_ResponderTile> {
                         color: Colors.white,
                       ),
                     ),
-                    // Always display the status.
+                    // Responder's status.
                     Text(
-                      "Status: $displayStatus",
+                      "Status: ${widget.responder.status.toUpperCase()}",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: statusColor,
+                        color: (widget.responder.status.toUpperCase() == "ON SCENE")
+                            ? Colors.green
+                            : Colors.white,
                       ),
                     ),
-                    // Then display the location.
+                    // Location.
                     Text(
                       "Location: $locationName",
                       style: const TextStyle(
