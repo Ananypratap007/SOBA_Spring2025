@@ -68,7 +68,7 @@ class _TilesScreenState extends State<TilesScreen> {
               lat: geoPoint.latitude,
               lng: geoPoint.longitude,
               loc: data['location'] ?? 'Unknown location',
-              status: data['location'] ?? '',
+              status: data['status'] ?? 'UNACTIVE',
               image: data['profileImage'] ?? 'https://via.placeholder.com/150',
             );
           }).toList();
@@ -229,7 +229,8 @@ class _ResponderTileState extends State<_ResponderTile> {
 
   Future<void> _fetchLocationName() async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(widget.responder.lat, widget.responder.lng);
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          widget.responder.lat, widget.responder.lng);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         setState(() {
@@ -245,12 +246,32 @@ class _ResponderTileState extends State<_ResponderTile> {
 
   @override
   Widget build(BuildContext context) {
+    // Use the responder's status if available; otherwise, default to "INACTIVE".
+    final String displayStatus = (widget.responder.status.isNotEmpty)
+        ? widget.responder.status.toUpperCase()
+        : "INACTIVE";
+
+    // Determine the status text color.
+    Color statusColor;
+    if (displayStatus == "ON SCENE") {
+      statusColor = Colors.green; // "On Scene" in green
+    } else if (displayStatus == "EMERGENCY") {
+      statusColor = Colors.white; // "Emergency" text in red
+    } else {
+      statusColor = Colors.white; // "Inactive" and "Active" in white
+    }
+
+    // If emergency, use a red card background; otherwise use blue.
+    Color cardColor = (displayStatus == "EMERGENCY") ? Colors.red : blue;
+
     return InkWell(
       onTap: widget.onTap,
       borderRadius: BorderRadius.circular(dfRadius),
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(dfRadius)),
-        color: blue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(dfRadius),
+        ),
+        color: cardColor,
         child: Padding(
           padding: const EdgeInsets.all(dfInsets),
           child: Row(
@@ -264,12 +285,32 @@ class _ResponderTileState extends State<_ResponderTile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.responder.name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                    Text('Status: ${widget.responder.status}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: teal)),
-                    Text('Location: $locationName',
-                        style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                    // Display the responder's name.
+                    Text(
+                      widget.responder.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    // Always display the status.
+                    Text(
+                      "Status: $displayStatus",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: statusColor,
+                      ),
+                    ),
+                    // Then display the location.
+                    Text(
+                      "Location: $locationName",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                      ),
+                    ),
                   ],
                 ),
               ),

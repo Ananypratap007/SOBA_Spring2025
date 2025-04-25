@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen>
                         stream: FirebaseFirestore.instance
                             .collection('visits')
                             .where('responderId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-                            .where('status', whereIn: ['pending', 'accepted'])
+                            .where('status', whereIn: ['inactive', 'pending', 'accepted']) // include inactive
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -363,8 +363,8 @@ class _HomeScreenState extends State<HomeScreen>
                                           ),
                                         ),
                                         const SizedBox(height: 20),
-                                        // Accept/Decline Buttons (only if status is pending)
-                                        if (job['status'] == 'pending')
+                                        // Accept/Decline Buttons (if job is pending or inactive)
+                                        if (job['status'] == 'pending' || job['status'] == 'inactive')
                                           Row(
                                             children: [
                                               Expanded(
@@ -399,10 +399,19 @@ class _HomeScreenState extends State<HomeScreen>
                                               Expanded(
                                                 child: ElevatedButton(
                                                   onPressed: () async {
-                                                    await FirebaseFirestore.instance
-                                                        .collection('visits')
-                                                        .doc(doc.id)
-                                                        .update({'status': 'accepted'});
+                                                    final currentUser = FirebaseAuth.instance.currentUser;
+                                                    if (currentUser != null) {
+                                                      // Update the visit document status from 'inactive' (or 'pending') to 'accepted'
+                                                      await FirebaseFirestore.instance
+                                                          .collection('visits')
+                                                          .doc(doc.id)
+                                                          .update({'status': 'accepted'});
+                                                      // Also mark the user's document as "Active"
+                                                      await FirebaseFirestore.instance
+                                                          .collection('users')
+                                                          .doc(currentUser.uid)
+                                                          .update({'status': 'Active'});
+                                                    }
                                                   },
                                                   style: ElevatedButton.styleFrom(
                                                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -478,7 +487,20 @@ class _HomeScreenState extends State<HomeScreen>
                                           ),
                                           const SizedBox(height: 20),
                                           ElevatedButton(
-                                            onPressed: () {
+                                            onPressed: () async {
+                                              final currentUser = FirebaseAuth.instance.currentUser;
+                                              if (currentUser != null) {
+                                                // Update the visit document: set from 'accepted' to 'active' (or directly 'on scene')
+                                                await FirebaseFirestore.instance
+                                                    .collection('visits')
+                                                    .doc(doc.id)
+                                                    .update({'status': 'on scene'});
+                                                // Update the user's document to "On Scene"
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(currentUser.uid)
+                                                    .update({'status': 'On Scene'});
+                                              }
                                               context.go('/checkin');
                                             },
                                             style: ElevatedButton.styleFrom(

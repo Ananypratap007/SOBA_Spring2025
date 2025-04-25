@@ -303,14 +303,11 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                         'state': _stateController.text.trim(),
                         'urgency': _selectedUrgency,
                         'description': _notesController.text.trim(),
-                        // Use responderId and responderName (if _selectedResponder is not null)
                         'responderId': _selectedResponder?['uid'],
                         'responder': _selectedResponder?['name'],
                         'createdAt': DateTime.now(),
-                        'status': 'pending',
+                        'status': 'inactive', // <-- set initially to inactive
                       };
-
-                      // Save the document in Firestore (in a "visits" or "jobs" collection)
                       await FirebaseFirestore.instance.collection('visits').add(jobData);
 
                       // Optionally show a confirmation dialog.
