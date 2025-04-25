@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class VisitScreen extends StatefulWidget {
   const VisitScreen({super.key});
@@ -354,8 +356,22 @@ class _VisitScreenState extends State<VisitScreen> with SingleTickerProviderStat
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.exit_to_app, color: Colors.white, size: 22),
-                      onPressed: () {
-                        context.go('/');
+                      onPressed: () async {
+                        final currentUser = FirebaseAuth.instance.currentUser;
+                        if (currentUser != null) {
+                          final snapshot = await FirebaseFirestore.instance
+                              .collection('visits')
+                              .where('responderId', isEqualTo: currentUser.uid)
+                              .where('status', isEqualTo: 'accepted')
+                              .get();
+                          if (snapshot.docs.isNotEmpty) {
+                            await FirebaseFirestore.instance
+                                .collection('visits')
+                                .doc(snapshot.docs.first.id)
+                                .delete();
+                          }
+                        }
+                        context.go('/'); // Navigate back to HomeScreen
                       },
                     ),
                   ],
