@@ -95,6 +95,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': FieldValue.serverTimestamp(),
         'profileCompleted': false,
+        'locationRisk': 'idle',
       });
 
       if (mounted) {
@@ -193,7 +194,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Color(0xFF003366),
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(65)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
@@ -313,14 +315,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor:
-                                        AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : const Text(
                                   'Sign Up',
-                                  style:
-                                      TextStyle(fontSize: 24, color: Colors.white),
+                                  style: TextStyle(
+                                      fontSize: 24, color: Colors.white),
                                 ),
                         ),
                         const SizedBox(height: 8),
@@ -377,7 +379,8 @@ class SmartTextField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
 
-  const SmartTextField({super.key, 
+  const SmartTextField({
+    super.key,
     required this.label,
     required this.controller,
   });

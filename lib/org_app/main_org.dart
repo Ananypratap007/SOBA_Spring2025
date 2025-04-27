@@ -22,6 +22,10 @@ import 'package:soba_app/org_app/screens/bottom_navigation/tiles.dart';
 import 'package:soba_app/features/org_features/bottom_navigator.dart';
 import 'package:soba_app/config/firebase_options.dart';
 
+// Activities relarted screens
+import 'package:soba_app/org_app/screens/activities/schedule_visit_screen.dart';
+import 'package:soba_app/org_app/screens/activities/reschedule_visit_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -76,6 +80,14 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/visit-form',
       builder: (context, state) => ClientFormScreen(),
+    ),
+    GoRoute(
+      path: '/schedule-visit',
+      builder: (context, state) => const ScheduleVisitScreen(),
+    ),
+    GoRoute(
+      path: '/reschedule-visit',
+      builder: (context, state) => const RescheduleVisitScreen(),
     ),
     GoRoute(
       path: '/tiles',

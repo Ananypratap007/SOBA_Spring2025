@@ -241,8 +241,8 @@ class _JoinOrganizationScreen2State extends State<JoinOrganizationScreen2> {
                           : List.generate(
                               301,
                               (index) => Center(
-                                child: Text(
-                                    (30 + index * 0.5).toStringAsFixed(1)),
+                                child:
+                                    Text((30 + index * 0.5).toStringAsFixed(1)),
                               ),
                             ),
                     ),
